@@ -1,9 +1,21 @@
 body {
   margin: 0;
-  background-image: url("waterfront.png");
+  background-image: url("garbage_water.jpg");
   background-repeat: no-repeat;
   background-size: cover;
+  height:100%;
+  width:100%;
+}
+html {
+  height:100%;
+  width:100%;
 }
 h2 {
   color: white;
+}
+
+mymap {
+  height: 100%; 
+  width: 100%;
+  padding-top:20px;
 }
