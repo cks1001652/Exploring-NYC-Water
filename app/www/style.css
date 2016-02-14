@@ -1,0 +1,9 @@
+body {
+  margin: 0;
+  background-image: url("waterfront.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+h2 {
+  color: white;
+}
