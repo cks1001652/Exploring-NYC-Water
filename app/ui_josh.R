@@ -4,7 +4,8 @@ shinyUI(fluidPage(theme = "style.css",
   tags$body(
     sidebarLayout(position = "right",
       sidebarPanel("sidebar panel"),
-      mainPanel("main panel")
+      leafletOuput("mymap")       
+      )
     )
   )
 ))
