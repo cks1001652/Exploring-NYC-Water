@@ -6,6 +6,7 @@ library(wordcloud)
 library(plyr)
 library(plotly)
 library(zoo)
+library(leaflet)
 
 # Read in data
 water <- readRDS("data/data_4.Rds")
