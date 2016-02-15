@@ -1,40 +1,60 @@
-library(shiny)
-
-# Define UI for application that draws a histogram
-shinyUI(fluidPage(
+shinyUI(navbarPage("Exploring NYC's Water", theme = "style.css",
+  #tags$body(
+#################### Start of a Menu Item ####################  
+    tabPanel("Overview",
+      # Sidebar with a selector input for neighborhood
+      sidebarLayout(
+        sidebarPanel(
   
-  # Application title
-  titlePanel("2009 Manhattan Housing Sales"),
-  
-  # Sidebar with a selector input for neighborhood
-  sidebarLayout(
-    sidebarPanel(
-      selectInput("nbhd", label = h5("Choose a Manhattan Neighborhood"), 
-                         choices = list("all neighborhoods"=0,
-                                        "Central Harlem"=1, 
-                                        "Chelsea and Clinton"=2,
-                                        "East Harlem"=3, 
-                                        "Gramercy Park and Murray Hill"=4,
-                                        "Greenwich Village and Soho"=5, 
-                                        "Lower Manhattan"=6,
-                                        "Lower East Side"=7, 
-                                        "Upper East Side"=8, 
-                                        "Upper West Side"=9,
-                                        "Inwood and Washington Heights"=10), 
-                         selected = 0)
-      #sliderInput("p.range", label=h3("Price Range (in thousands of dollars)"),
-      #            min = 0, max = 20000, value = c(200, 10000))
+        ),
+        # Show main panel
+        mainPanel(
+          #h3(code(textOutput("text1"))),
+          
+        )
+      )      
     ),
-    # Show two panels
-    mainPanel(
-      #h4(textOutput("text")),
-      h3(code(textOutput("text1"))),
-      tabsetPanel(
-        # Panel 1 has three summary plots of sales. 
-        tabPanel("Sales summary", plotOutput("distPlot")), 
-        # Panel 2 has a map display of sales' distribution
-        tabPanel("Sales map", plotOutput("distPlot1")))
-    )
- )
-))
+#################### End of the Menu Item ####################
 
+#################### Start Josh's Menu Item ####################
+    tabPanel("Water Quality",  
+      # Sidebar with a selector input for neighborhood
+      sidebarLayout(position="right",
+        sidebarPanel(
+          conditionalPanel(condition="input.conditionedPanels==1",
+            helpText("View the various descriptions of individual reported problems with NYC Water"),
+            br(),
+            sliderInput("desc_range", 
+              label = "Range of Number of Descriptors",
+              min = 0, max = 13, value = c(0, 13))
+          ),
+          conditionalPanel(condition="input.conditionedPanels==2",
+            helpText("Choose a complaint description to see correlation with sampled water"),
+            br(),
+            selectInput("complaint_desc", 
+              label = "Choose a description",
+              choices = list("All Complaints", "Chemical Taste", "Clear with Insects/Worms", "Clear w/ Particles", "Cloudy Water", "Metallic Taste/Odor", "Musty Taste/Odor", "Milky Water", "Oil in Water", "Sewer Taste/Odor", "Unknown Taste"),
+              selected = "All complaints")
+          ),
+          conditionalPanel(condition="input.conditionedPanels==3",
+            helpText("Cluster Graph of Reported Illness due to Drinking Water")
+          )
+        ),
+        # Show main panel
+        mainPanel(
+          tabsetPanel(type="pill",
+            # Panel 1 is a bubble chart showing descriptors
+            tabPanel("Reported Water Quality", br(), tags$div(class="descrip_text", textOutput("descrip_text")), br(), tags$div(class="descrip_plot", plotOutput("descrip_plot")), value=1), 
+            # Panel 2 is a line chart comparing water quality
+            tabPanel("Sampled Water Quality", br(), plotlyOutput("sample_plot"), value=2),
+            # Panel 3 is a map showing illness
+            tabPanel("Illness", br(), leafletOutput("ill_map"), value=3),
+            id = "conditionedPanels"
+          ) 
+        )
+      )
+    )
+#################### End of Josh's Menu Item ####################
+    
+  #)
+))
