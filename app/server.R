@@ -54,7 +54,7 @@ shinyServer(function(input, output) {
 
 #################### Josh's Output ####################
   output$ill_map <- renderLeaflet({
-    leaflet(drink_water) %>% addTiles() %>% addProviderTiles("CartoDB.DarkMatter") %>%setView(lng = -73.9857, lat = 40.7577, zoom = 12) %>% addCircleMarkers(radius=6, fillOpacity = 0.5, popup = ~as.character(Date), clusterOptions = markerClusterOptions())
+    leaflet(drink_water) %>% addTiles() %>% addProviderTiles("CartoDB.DarkMatter") %>%setView(lng = -73.9857, lat = 40.7577, zoom = 12) %>% addCircleMarkers(radius=6, fillOpacity = 0.5, popup = paste("Reported: ", ~as.character(Date)), clusterOptions = markerClusterOptions())
   })
   
   # Make the wordcloud drawing predictable during a session
@@ -64,12 +64,16 @@ shinyServer(function(input, output) {
     # min.freq = input$freq, max.words=input$max,
     df <- as.data.frame(table(quality_water$Descriptor))
     par(bg="#f5f5f5")
-    wordcloud_rep(df$Var1, df$Freq, min.freq = input$desc_range[1], max.words=input$desc_range[2], scale=c(2.5,.5), random.order = TRUE, random.color=TRUE, rot.per=.15,
-                  colors=brewer.pal(11, "BrBG"))
+    wordcloud_rep(df$Var1, df$Freq, min.freq = input$desc_range[1], max.words=input$desc_range[2], scale=c(3,1), random.order = TRUE, random.color=TRUE, rot.per=.3,
+                  colors=brewer.pal(8, "Dark2"))
   })
   
   output$descrip_text = renderText({
       paste("Viewing ", input$desc_range[1], " to ", max.words=input$desc_range[2], "descriptors")
+  })
+
+  output$sample_text = renderText({
+      paste("Graph of ", input$complaint_desc, " Complaints in 2015")
   })
 
   output$sample_plot = renderPlotly({
@@ -85,7 +89,7 @@ shinyServer(function(input, output) {
       side = "right"
     )
     
-    if(input$complaint_desc == "All Complaints"){
+    if(input$complaint_desc == "All"){
       rep_q_water_table2 <- rep_q_water_table
     } else {
       rep_q_water_table2 <- rep_q_water_table[rep_q_water_table$Descriptor== input$complaint_desc,]
