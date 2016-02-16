@@ -33,7 +33,7 @@ shinyUI(navbarPage("Exploring NYC's Water", theme = "style.css",
             br(),
             selectInput("complaint_desc", 
               label = "Choose a description",
-              choices = list("All Complaints", "Chemical Taste", "Clear with Insects/Worms", "Clear w/ Particles", "Cloudy Water", "Metallic Taste/Odor", "Musty Taste/Odor", "Milky Water", "Oil in Water", "Sewer Taste/Odor", "Unknown Taste"),
+              choices = list("All", "Chemical Taste", "Clear with Insects/Worms", "Clear w/ Particles", "Cloudy Water", "Metallic Taste/Odor", "Musty Taste/Odor", "Milky Water", "Oil in Water", "Sewer Taste/Odor", "Unknown Taste"),
               selected = "All complaints")
           ),
           conditionalPanel(condition="input.conditionedPanels==3",
@@ -46,7 +46,7 @@ shinyUI(navbarPage("Exploring NYC's Water", theme = "style.css",
             # Panel 1 is a bubble chart showing descriptors
             tabPanel("Reported Water Quality", br(), tags$div(class="descrip_text", textOutput("descrip_text")), br(), tags$div(class="descrip_plot", plotOutput("descrip_plot")), value=1), 
             # Panel 2 is a line chart comparing water quality
-            tabPanel("Sampled Water Quality", br(), plotlyOutput("sample_plot"), value=2),
+            tabPanel("Sampled Water Quality", br(), tags$div(class="descrip_text", textOutput("sample_text")), br(), plotlyOutput("sample_plot"), value=2),
             # Panel 3 is a map showing illness
             tabPanel("Illness", br(), leafletOutput("ill_map"), value=3),
             id = "conditionedPanels"
