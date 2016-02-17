@@ -14,6 +14,19 @@ shinyUI(navbarPage("Exploring NYC's Water", theme = "style.css",
         )
       )      
     ),
+    tabPanel("New tab",
+      # Sidebar with a selector input for neighborhood
+      sidebarLayout(
+        sidebarPanel(
+  
+        ),
+        # Show main panel
+        mainPanel(
+          #h3(code(textOutput("text1"))),
+          
+        )
+      )      
+    ),
 #################### End of the Menu Item ####################
 
 #################### Start Josh's Menu Item ####################
