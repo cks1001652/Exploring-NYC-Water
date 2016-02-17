@@ -22,14 +22,14 @@ shinyUI(navbarPage("Exploring NYC's Water", theme = "style.css",
       sidebarLayout(position="right",
         sidebarPanel(
           conditionalPanel(condition="input.conditionedPanels==1",
-            helpText("View the various descriptions of individual reported problems with NYC Water"),
+            helpText("Explore this wordcloud that shows the various descriptors used by NYC residents to describe their water"),
             br(),
             sliderInput("desc_range", 
               label = "Range of Number of Descriptors",
               min = 0, max = 13, value = c(0, 13))
           ),
           conditionalPanel(condition="input.conditionedPanels==2",
-            helpText("Choose a complaint description to see correlation with sampled water"),
+            helpText("Try selecting different descriptions of water to see if it correlates with water sampled from NYC's upstate reservoirs"),
             br(),
             selectInput("complaint_desc", 
               label = "Choose a description",
@@ -37,7 +37,11 @@ shinyUI(navbarPage("Exploring NYC's Water", theme = "style.css",
               selected = "All complaints")
           ),
           conditionalPanel(condition="input.conditionedPanels==3",
-            helpText("Cluster Graph of Reported Illness due to Drinking Water")
+            helpText("Discover the locations where NYC residents claim the drinking water has made them sick"),
+            br(),
+            selectInput("ill_year", 
+              label = "Choose a year",
+              choices = list("All", "2015", "2014", "2013"))
           )
         ),
         # Show main panel
@@ -48,7 +52,7 @@ shinyUI(navbarPage("Exploring NYC's Water", theme = "style.css",
             # Panel 2 is a line chart comparing water quality
             tabPanel("Sampled Water Quality", br(), tags$div(class="descrip_text", textOutput("sample_text")), br(), plotlyOutput("sample_plot"), value=2),
             # Panel 3 is a map showing illness
-            tabPanel("Illness", br(), leafletOutput("ill_map"), value=3),
+            tabPanel("Illness", br(), tags$div(class="descrip_text", textOutput("ill_text")), br(), leafletOutput("ill_map"), value=3),
             id = "conditionedPanels"
           ) 
         )

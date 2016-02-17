@@ -54,7 +54,14 @@ shinyServer(function(input, output) {
 
 #################### Josh's Output ####################
   output$ill_map <- renderLeaflet({
-    leaflet(drink_water) %>% addTiles() %>% addProviderTiles("CartoDB.DarkMatter") %>%setView(lng = -73.9857, lat = 40.7577, zoom = 12) %>% addCircleMarkers(radius=6, fillOpacity = 0.5, popup = paste("Reported: ", ~as.character(Date)), clusterOptions = markerClusterOptions())
+    if(input$ill_year == "All"){
+      drink_water2 <- drink_water
+    } else {
+      drink_water2 <- drink_water[grepl(input$ill_year, drink_water$Date),]
+    } 
+    
+    
+    leaflet(na.omit(drink_water2)) %>% addTiles() %>% addProviderTiles("CartoDB.DarkMatter") %>%setView(lng = -73.9857, lat = 40.7577, zoom = 12) %>% addCircleMarkers(radius=6, fillOpacity = 0.5, popup = paste("Location: ", drink_water2$Incident.Address), clusterOptions = markerClusterOptions())
   })
   
   # Make the wordcloud drawing predictable during a session
@@ -76,6 +83,10 @@ shinyServer(function(input, output) {
       paste("Graph of ", input$complaint_desc, " Complaints in 2015")
   })
 
+  output$ill_text = renderText({
+      paste(input$ill_year, "Cluster Graph of Reported Illness")
+  })
+
   output$sample_plot = renderPlotly({
     x_axis <- list(
       title = "Months in 2015"
@@ -94,7 +105,7 @@ shinyServer(function(input, output) {
     } else {
       rep_q_water_table2 <- rep_q_water_table[rep_q_water_table$Descriptor== input$complaint_desc,]
     }
-    rep_q_water_table2
+    #rep_q_water_table2
     # Total data table
     rep_q_water_table_monthly <- aggregate(rep_q_water_table2$Number, list(rep_q_water_table2$Date), sum)
     rep_q_water_table_monthly$Group.1 <- mapvalues(rep_q_water_table_monthly$Group.1, from = rep_q_water_table_monthly$Group.1, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))  
