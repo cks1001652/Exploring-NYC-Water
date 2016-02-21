@@ -15,10 +15,6 @@ THREE <- readRDS("~/Desktop/THREE.Rds")
 C <- data.frame(Borough = A$Borough[A$Status == "Closed"], 
                 Complaint.Type = A$Complaint.Type[A$Status == "Closed"],Days = A$Days[A$Status == "Closed"])
 
-G <- data.frame(Borough = A$Borough[A$Status == "Open"], Complaint.Type = A$Complaint.Type[A$Status == "Open"])
-
-P <- data.frame(Borough = A$Borough[A$Status == "Closed"], Complaint.Type = A$Complaint.Type[A$Status == "Closed"])
-
 #shinyserver
 shinyServer(
   function(input, output) {
