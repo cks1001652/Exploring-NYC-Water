@@ -1,40 +1,34 @@
-# setwd("/Users/Josh/Documents/Spring 2016/DataScience/Project2/project2-cycle2-8/")
+#setwd("/Users/Josh/Documents/Spring 2016/DataScience/Project2/project2-cycle2-8/")
 library(shiny)
-# 
 library(plyr)
 library(dplyr)
-
 library(data.table)
 library(wordcloud)
-
+#library(plyr)
 library(plotly)
 library(zoo)
 library(leaflet)
-
-
-
+library(rCharts)
 # Read in data
 water <- readRDS("../data/data_4.Rds")
 water$Created.Date <- NULL
 water$Resolution.Action.Updated.Date <- NULL
 
-
-################### Josh's Data ####################
-
+#################### Josh's Data ####################
 water_qual <- readRDS("../data/water_quality.rds")
 # https://data.cityofnewyork.us/Environment/Drinking-Water-Quality-Distribution-Monitoring-Dat/bkwf-xfky
 water_qual_Turbid <- aggregate(water_qual$Turbidity, list(water_qual$Date), mean)
-water_qual_Turbid <- rename(water_qual_Turbid, c("Group.1"="Date", "x"="Turbidity"))
+water_qual_Turbid <- plyr::rename(water_qual_Turbid, c("Group.1"="Date", "x"="Turbidity"))
 water_qual_Turbid$Date <- format(as.yearmon(water_qual_Turbid$Date, "%m/%d/%Y"), "%m")
 water_qual_Turbid <- aggregate(water_qual_Turbid$Turbidity, list(water_qual_Turbid$Date), mean)
-water_qual_Turbid <- rename(water_qual_Turbid, c("Group.1"="Date", "x"="Turbidity"))
+water_qual_Turbid <- plyr::rename(water_qual_Turbid, c("Group.1"="Date", "x"="Turbidity"))
 water_qual_Turbid$Date <- mapvalues(water_qual_Turbid$Date, from = water_qual_Turbid$Date, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
 
 water_qual_Chlorine <- aggregate(water_qual$Chlorine, list(water_qual$Date), mean)
-water_qual_Chlorine <- rename(water_qual_Chlorine, c("Group.1"="Date", "x"="Chlorine"))
+water_qual_Chlorine <- plyr::rename(water_qual_Chlorine, c("Group.1"="Date", "x"="Chlorine"))
 water_qual_Chlorine$Date <- format(as.yearmon(water_qual_Chlorine$Date, "%m/%d/%Y"), "%m")
 water_qual_Chlorine <- aggregate(water_qual_Chlorine$Chlorine, list(water_qual_Chlorine$Date), mean)
-water_qual_Chlorine <- rename(water_qual_Chlorine, c("Group.1"="Date", "x"="Chlorine"))
+water_qual_Chlorine <- plyr::rename(water_qual_Chlorine, c("Group.1"="Date", "x"="Chlorine"))
 water_qual_Chlorine$Date <- mapvalues(water_qual_Chlorine$Date, from = water_qual_Chlorine$Date, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
 
 
@@ -48,30 +42,43 @@ rep_q_water <- rep_q_water[grepl("2015", rep_q_water$Date),]
 rep_q_water$Date <- (format(as.yearmon(rep_q_water$Date, "%Y-%m-%d"), "%m"))
 
 # Main data table
-
 rep_q_water_table <- as.data.frame(table(rep_q_water$Date, rep_q_water$Descriptor))
-rep_q_water_table <- rename(rep_q_water_table, c("Var1"="Date", "Var2"="Descriptor", "Freq"="Number"))
+rep_q_water_table <- plyr::rename(rep_q_water_table, c("Var1"="Date", "Var2"="Descriptor", "Freq"="Number"))
+
 # Total data table
 #rep_q_water_table_monthly <- aggregate(rep_q_water_table$Number, list(rep_q_water_table$Date), sum)
 #rep_q_water_table_monthly$Group.1 <- mapvalues(rep_q_water_table_monthly$Group.1, from = rep_q_water_table_monthly$Group.1, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
 
 
-source(file = "../app/Global.R")
+source(file = "Global.R")
+
+
 
 #################### End of Josh's Data ####################
 
 shinyServer(function(input, output) {
 
-################### Josh's Output ####################
-  output$ill_map <- renderLeaflet({
+#################### Josh's Output ####################
+  output$ill_map <- renderMap({ #renderLeaflet
     if(input$ill_year == "All"){
       drink_water2 <- drink_water
     } else {
       drink_water2 <- drink_water[grepl(input$ill_year, drink_water$Date),]
-    } 
+    }
+    drink_water2 <- na.omit(drink_water2)
     
-    
-    leaflet(na.omit(drink_water2)) %>% addTiles() %>% addProviderTiles("CartoDB.DarkMatter") %>%setView(lng = -73.9857, lat = 40.7577, zoom = 12) %>% addCircleMarkers(radius=6, fillOpacity = 0.5, popup = paste("Location: ", drink_water2$Incident.Address), clusterOptions = markerClusterOptions())
+    leaf_map <- Leaflet$new()
+    leaf_map$setView(c(40.7577,-73.9857), 10)
+    leaf_map$tileLayer(provider = "Stamen.TonerLite")
+    for (i in 1:nrow(drink_water2)) {leaf_map$marker(c(drink_water2$Latitude[i], drink_water2$Longitude[i]), bindPopup = paste("Location: ", drink_water2$Incident.Address[i])) }
+    #leaf_map$marker(c(drink_water2$Latitude[1], drink_water2$Longitude[1]), bindPopup = paste("Location: ", drink_water2$Incident.Address[1]))
+    leaf_map
+    #leaflet(na.omit(drink_water2)) %>% addTiles() %>% addProviderTiles("CartoDB.DarkMatter") %>%setView(lng = -73.9857, lat = 40.7577, zoom = 12) %>% addCircleMarkers(radius=6, fillOpacity = 0.5, popup = paste("Location: ", drink_water2$Incident.Address), clusterOptions = markerClusterOptions())
+    #m <- leaflet(na.omit(drink_water2))
+    #m <- addProviderTiles(m, "CartoDB.DarkMatter")
+    #m <- setView(m, lng = -73.9857, lat = 40.7577, zoom = 12)
+    #m <- addCircleMarkers(m, radius=6, fillOpacity = 0.5, popup = paste("Location: ", drink_water2$Incident.Address), clusterOptions = markerClusterOptions())
+    #m
   })
   
   # Make the wordcloud drawing predictable during a session
@@ -125,18 +132,16 @@ shinyServer(function(input, output) {
     add_trace(rep_q_water_table_monthly, x=rep_q_water_table_monthly$Group.1, y = rep_q_water_table_monthly$x, name = "NYC Resident Complaints", yaxis = "y2", text=paste("Num of complaints:", rep_q_water_table_monthly$x))
     layout(p, xaxis = x_axis, yaxis=y_axis, yaxis2 = ay)
     
-  })
+  })  
+#################### End of Josh's Output ####################
 
-
-  
-################### End of Josh's Output ####################
 ################### Start Richard's Output###################
 output$piechart <- renderPlotly({
 #   detach("package:plyr",unload=T)
   watertypedata0 <- calculation(dataclean(waternew,fulllist[as.numeric(input$borough)],fulltime[as.numeric(input$year)]))
   q <- plot_ly(type='pie',values=watertypedata0[,4],labels=watertypedata0[,1])%>%
-    layout(paper_bgcolor='rgba(0,0,0,0)',plot_bgcolor='rgba(0,0,0,0)',title='Complaint Types Proportion')
-  q
+    layout(q, paper_bgcolor='rgba(0,0,0,0)',plot_bgcolor='rgba(0,0,0,0)',title='Complaint Types Proportion')
+  #q
 #   library(plyr)
 })
 
@@ -145,6 +150,9 @@ output$baseMap  <- renderMap({
   baseMap$setView(c(40.7577,-73.9857), 10)
   baseMap$tileLayer(provider = "Stamen.TonerLite")
   baseMap
+  
+  #leaflet() %>% addTiles() %>% addProviderTiles("Stamen.TonerLite") %>%setView(lat=40.7577,lng=-73.9857, zoom=10)
+  
 })
 
 output$heatMap <- renderUI({
@@ -177,4 +185,7 @@ if (typeof heat === typeof undefined) {
   
 }) 
 ################## End Richard's Output##############
+
+
+
 })
