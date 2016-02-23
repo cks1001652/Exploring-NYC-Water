@@ -1,11 +1,11 @@
 library(dplyr)
-library(data.table)
+# library(data.table)
 # library(ggplot2)
 # library(plotrix)
 # library(RColorBrewer)
 # library(scales)
-library(rCharts)
-
+# library(rCharts)
+library(zoo)
 water <- readRDS("~/Github/project2-cycle2-8/data/data_4.Rds")
 waterr <- water
 waterr$Created.Date <- NULL
@@ -14,13 +14,16 @@ waterr$Date <- format(as.yearmon(waterr$Date, "%Y-%m-%d"), "%Y")
 waterr$Date <- as.factor(waterr$Date)
 
 waternew <- data.frame(c(waterr[,c("Complaint.Type","Borough","Date")]))
-waternew1 <- data.frame(c(waterr[,c("Latitude","Longitude","Date")]))
-waternew1 <- na.omit(waternew1)
-waternew1[,3] <- as.numeric(waternew1[,3])
-waternew1[waternew1[,3]==2013,3] = 1
-waternew1[waternew1[,3]==2014,3] = 2
-waternew1[waternew1[,3]==2015,3] = 3
-
+map1 <- readRDS("map1.rds")
+map2 <- readRDS("map2.rds")
+map3 <- readRDS("map3.rds")
+# waternew1 <- data.frame(c(waterr[,c("Latitude","Longitude","Date")]))
+# waternew1 <- na.omit(waternew1)
+# waternew1[,3] <- as.numeric(waternew1[,3])
+# waternew1[waternew1[,3]==2013,3] = 1
+# waternew1[waternew1[,3]==2014,3] = 2
+# waternew1[waternew1[,3]==2015,3] = 3
+# 
 
  
 #dataclean function

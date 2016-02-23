@@ -1,3 +1,12 @@
+library(shiny)
+library(dplyr)
+# library(plyr)
+library(data.table)
+library(wordcloud)
+library(plotly)
+library(zoo)
+library(rCharts)
+library(leaflet)
 shinyUI(navbarPage("Exploring NYC's Water", theme = "style.css",
   #tags$body(
 #################### Start of a Menu Item ####################  
@@ -14,22 +23,8 @@ shinyUI(navbarPage("Exploring NYC's Water", theme = "style.css",
         )
       )      
     ),
-    tabPanel("New tab",
-      # Sidebar with a selector input for neighborhood
-      sidebarLayout(
-        sidebarPanel(
-  
-        ),
-        # Show main panel
-        mainPanel(
-          #h3(code(textOutput("text1"))),
-          
-        )
-      )      
-    ),
-#################### End of the Menu Item ####################
 
-#################### Start Josh's Menu Item ####################
+################### Start Josh's Menu Item ####################
     tabPanel("Water Quality",  
       # Sidebar with a selector input for neighborhood
       sidebarLayout(position="right",
@@ -70,8 +65,41 @@ shinyUI(navbarPage("Exploring NYC's Water", theme = "style.css",
           ) 
         )
       )
-    )
+    ),
 #################### End of Josh's Menu Item ####################
-    
-  #)
+#     
+#   #)
+
+###############Start Richard's Menu Item################### 
+navbarMenu("Overview",
+           tabPanel("Basic Information",
+                    fluidRow(
+                      column(4,sidebarPanel(width=10,helpText("We disply the proportion of the Complaints type and Year it happened"),
+                                            selectInput("year","Choose a Year to display",
+                                                        choices = list("2013"=1,"2014"=2,"2015"=3),
+                                                        selected = 1),
+                                            selectInput("borough","Choose a Borough to display",
+                                                        choices = list("BRONX"=1,"BROOKLYN"=2,"MANHATTAN"=3,"QUEENS"=4,"STATEN ISLAND"=5),
+                                                        selected = 1)
+                      )),
+                      column(8,mainPanel(width=12,plotlyOutput('piechart',height="600px")
+                                         
+                      ))
+                    )),
+           
+           tabPanel("Density/Heat Map",
+                    headerPanel("Density/Heat map"),
+                    sidebarPanel(width=4,selectInput("mapyear","Choose a Year to display",
+                                                     choices = list("2013"=1,"2014"=2,"2015"=3),
+                                                     selected = 3)
+                    ),
+                    mainPanel(width=8,
+                              chartOutput("baseMap", "leaflet"),
+                              tags$style('.leaflet {height: 500px;}'),
+                              tags$head(tags$script(src="http://leaflet.github.io/Leaflet.heat/dist/leaflet-heat.js")),
+                              uiOutput('heatMap')
+                    )
+           ))
+
+#################### End of Richard's Menu Item ####################
 ))
