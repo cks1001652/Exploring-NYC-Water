@@ -130,6 +130,7 @@ shinyServer(function(input, output) {
 
   
 ################### End of Josh's Output ####################
+  
 ################### Start Richard's Output###################
 output$piechart <- renderPlotly({
 #   detach("package:plyr",unload=T)
@@ -177,4 +178,35 @@ if (typeof heat === typeof undefined) {
   
 }) 
 ################## End Richard's Output##############
+
+################## Start Schinria's Output##############
+
+final_shiny <- readRDS("../data/final_shiny.rds")
+
+shiny2_stacked <- readRDS("../data/shiny2_stacked.rds")
+
+output$myChart <- renderChart({
+  shiny2 = as.data.frame(shiny2_stacked)
+  p6 <- nPlot(Frequency ~ Borough, group = 'Type', data = shiny2, 
+              type = input$type, dom = 'myChart', width = 800)
+  p6$chart(color = c('green', 'brown'), stacked = input$stack)
+  
+  p6$yAxis(tickFormat = "#! function(d) {return d3.format(',.2f')(d)} !#")
+  
+  return(p6)
+})
+
+output$duplicatePlot <- renderPlot({
+  
+  # Render a barplot
+  barplot(final_shiny[,input$borough],
+          main=input$borough,
+          col = topo.colors(12),
+          ylab="Number of Duplicate Complaints",
+          xlab="Year", ylim=c(0,max(final_shiny)))
+})
+
+
+################## End Schinria's Output##############
+
 })
