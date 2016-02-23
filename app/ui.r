@@ -7,6 +7,7 @@ library(plotly)
 library(zoo)
 library(rCharts)
 library(leaflet)
+
 shinyUI(navbarPage("Exploring NYC's Water", theme = "style.css",
   #tags$body(
 #################### Start of a Menu Item ####################  
@@ -99,7 +100,41 @@ navbarMenu("Overview",
                               tags$head(tags$script(src="http://leaflet.github.io/Leaflet.heat/dist/leaflet-heat.js")),
                               uiOutput('heatMap')
                     )
-           ))
+           )),
 
 #################### End of Richard's Menu Item ####################
-))
+
+###############Start Schinria's Menu Item################### 
+navbarMenu("Duplicates",
+tabPanel("Duplicate Complaints",
+         # Sidebar with a selector input for neighborhood
+         sidebarLayout(position="right",
+                       sidebarPanel(
+                         conditionalPanel(condition="input.conditionedPanels==4",
+                                          selectInput("borough", "Borough:", 
+                                                      choices=colnames(final_shiny)),
+                                          hr(),
+                                          helpText("Boroughs of NYC that had complaints filed through 311 Service Requests")
+                         ),
+                         conditionalPanel(condition="input.conditionedPanels==5",
+                                          selectInput(inputId = "type",
+                                                      label = "Choose Chart Type",
+                                                      choices = c("multiBarChart", "multiBarHorizontalChart"),
+                                                      selected = "multiBarChart"),
+                                          checkboxInput(inputId = "stack",
+                                                        label = strong("Stack Bars?"),
+                                                        value = FALSE)
+                         )   
+                       ),
+                       # Show main panel
+                       mainPanel(
+                         tabsetPanel(type="pill",
+                                     #Panel 1 is a bar chart of cuplicates by year            
+                                     tabPanel("Duplicate Heat/Hot Water Complaints By Year",br(), plotOutput("duplicatePlot"), value=4),
+                                     #Panel 2 is a stacked bar chart of duplicates vs. non-duplicates
+                                     tabPanel("Duplicate Heat/Hot Water Requests Submitted by Borough", br(), showOutput("myChart", "nvd3"), value=5),
+                                     id = "conditionedPanels"
+                         )
+                       )
+         )
+))))
