@@ -1,20 +1,27 @@
-setwd("/Users/Josh/Documents/Spring 2016/DataScience/Project2/project2-cycle2-8/")
+# setwd("/Users/Josh/Documents/Spring 2016/DataScience/Project2/project2-cycle2-8/")
 library(shiny)
+# 
+library(plyr)
 library(dplyr)
+
 library(data.table)
 library(wordcloud)
-library(plyr)
+
 library(plotly)
 library(zoo)
 library(leaflet)
 
+
+
 # Read in data
-water <- readRDS("data/data_4.Rds")
+water <- readRDS("../data/data_4.Rds")
 water$Created.Date <- NULL
 water$Resolution.Action.Updated.Date <- NULL
 
-#################### Josh's Data ####################
-water_qual <- readRDS("data/water_quality.rds")
+
+################### Josh's Data ####################
+
+water_qual <- readRDS("../data/water_quality.rds")
 # https://data.cityofnewyork.us/Environment/Drinking-Water-Quality-Distribution-Monitoring-Dat/bkwf-xfky
 water_qual_Turbid <- aggregate(water_qual$Turbidity, list(water_qual$Date), mean)
 water_qual_Turbid <- rename(water_qual_Turbid, c("Group.1"="Date", "x"="Turbidity"))
@@ -41,18 +48,21 @@ rep_q_water <- rep_q_water[grepl("2015", rep_q_water$Date),]
 rep_q_water$Date <- (format(as.yearmon(rep_q_water$Date, "%Y-%m-%d"), "%m"))
 
 # Main data table
+
 rep_q_water_table <- as.data.frame(table(rep_q_water$Date, rep_q_water$Descriptor))
 rep_q_water_table <- rename(rep_q_water_table, c("Var1"="Date", "Var2"="Descriptor", "Freq"="Number"))
-
 # Total data table
 #rep_q_water_table_monthly <- aggregate(rep_q_water_table$Number, list(rep_q_water_table$Date), sum)
 #rep_q_water_table_monthly$Group.1 <- mapvalues(rep_q_water_table_monthly$Group.1, from = rep_q_water_table_monthly$Group.1, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
+
+
+source(file = "../app/Global.R")
 
 #################### End of Josh's Data ####################
 
 shinyServer(function(input, output) {
 
-#################### Josh's Output ####################
+################### Josh's Output ####################
   output$ill_map <- renderLeaflet({
     if(input$ill_year == "All"){
       drink_water2 <- drink_water
@@ -119,6 +129,52 @@ shinyServer(function(input, output) {
 
 
   
-#################### End of Josh's Output ####################
+################### End of Josh's Output ####################
+################### Start Richard's Output###################
+output$piechart <- renderPlotly({
+#   detach("package:plyr",unload=T)
+  watertypedata0 <- calculation(dataclean(waternew,fulllist[as.numeric(input$borough)],fulltime[as.numeric(input$year)]))
+  q <- plot_ly(type='pie',values=watertypedata0[,4],labels=watertypedata0[,1])%>%
+    layout(paper_bgcolor='rgba(0,0,0,0)',plot_bgcolor='rgba(0,0,0,0)',title='Complaint Types Proportion')
+  q
+#   library(plyr)
+})
 
+output$baseMap  <- renderMap({
+  baseMap <- Leaflet$new()
+  baseMap$setView(c(40.7577,-73.9857), 10)
+  baseMap$tileLayer(provider = "Stamen.TonerLite")
+  baseMap
+})
+
+output$heatMap <- renderUI({
+  
+  if (input$mapyear == 3 ){
+    watermap <- map3}
+  #     
+  else if (input$mapyear == 2 ){
+    watermap <- map2}
+  #       
+  else {watermap <- map1}
+  
+  
+  watermap1 <- as.data.table(watermap)
+  watermap2 <- watermap1[(Latitude != ""), .(count = .N), by=.(Latitude, Longitude)]
+  j <- paste0("[",watermap2[,Latitude], ",", watermap2[,Longitude], ",", watermap2[,count], "]", collapse=",")
+  j <- paste0("[",j,"]")
+  tags$body(tags$script(HTML(sprintf("
+                                var addressPoints = %s
+if (typeof heat === typeof undefined) {
+            heat = L.heatLayer(addressPoints)
+            heat.addTo(map)
+          } else {
+            heat.setOptions()
+            heat.setLatLngs(addressPoints)
+          }
+                                         </script>"
+                                     , j))))
+  
+  
+}) 
+################## End Richard's Output##############
 })
