@@ -1,140 +1,52 @@
 library(shiny)
 library(dplyr)
+library(plyr)
 library(data.table)
 library(wordcloud)
 library(plotly)
 library(zoo)
+library(rCharts)
 library(leaflet)
-water <- readRDS("~/Github/project2-cycle2-8/data/data_4.Rds")
-water$Created.Date <- NULL
-water$Resolution.Action.Updated.Date <- NULL
-water$Date <- format(as.yearmon(water$Date, "%Y-%m-%d"), "%Y")
-water$Date <- as.factor(water$Date)
-waternew <- data.frame(c(water[,c("Complaint.Type","Borough","Latitude","Longitude","Date")]))
+# call function from previous code
 system.time(source(file = "~/Github/project2-cycle2-8/output/part1.R"))
+# data clean
+
+
+#Call function and data
+system.time(source(file = "~/Github/project2-cycle2-8/output/part1.R"))
+
 shinyServer(function(input, output) {
-#   output$histo <- renderPlot({
-#     if ( input$borough=="BRONX"& input$year == "All" ){
-#       watertypedata0 <- dataclean(waternew,fulllist[1],fulltime)
-#     }
-#     if ( input$borough=="BROOKLYN"& input$year == "All" ){
-#       watertypedata0 <- dataclean(waternew,fulllist[2],fulltime)
-#     }
-#     if ( input$borough=="MANHATTAN"& input$year == "All" ){
-#       watertypedata0 <- dataclean(waternew,fulllist[3],fulltime)
-#     }
-#     if ( input$borough=="QUEENS"& input$year == "All" ){
-#       watertypedata0 <- dataclean(waternew,fulllist[4],fulltime)}
-#     if ( input$borough=="STATEN ISLAND"& input$year == "All" ){
-#       watertypedata0 <- dataclean(waternew,fulllist[5],fulltime)}
-#     if ( input$borough=="BRONX"& input$year == 2013 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[1],fulltime[1])}
-#     if ( input$borough=="BROOKLYN"& input$year == 2013 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[2],fulltime[1])}
-#     if ( input$borough=="MANHATTAN"& input$year == 2013 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[3],fulltime[1])}
-#     if ( input$borough=="QUEENS"& input$year == 2013 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[4],fulltime[1])}
-#     if ( input$borough=="STATEN ISLAND"& input$year == 2013 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[5],fulltime[1])}
-#     if ( input$borough=="BRONX"& input$year == 2014 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[1],fulltime[2])}
-#     if ( input$borough=="BROOKLYN"& input$year == 2014 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[2],fulltime[2])}
-#     if ( input$borough=="MANHATTAN"& input$year == 2014 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[3],fulltime[2])}
-#     if ( input$borough=="QUEENS"& input$year == 2014 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[4],fulltime[2])}
-#     if ( input$borough=="STATEN ISLAND"& input$year == 2014 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[5],fulltime[2])}
-#     if ( input$borough=="BRONX"& input$year == 2015 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[1],fulltime[3])}
-#     if ( input$borough=="BROOKLYN"& input$year == 2015 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[2],fulltime[3])}
-#     if ( input$borough=="MANHATTAN"& input$year == 2015 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[3],fulltime[3])}
-#     if ( input$borough=="QUEENS"& input$year == 2015 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[4],fulltime[3])}
-#     if ( input$borough=="STATEN ISLAND"& input$year == 2015 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[5],fulltime[3])}
-#     
-#     histo(watertypedata0,"#56B4F9")
-#     },bg="transparent")
-#   output$piechart <- renderPlot({
-#     
-#     if ( input$borough=="BRONX"& input$year == "All" ){
-#       watertypedata0 <- dataclean(waternew,fulllist[1],fulltime)
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="BROOKLYN"& input$year == "All" ){
-#       watertypedata0 <- dataclean(waternew,fulllist[2],fulltime)
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="MANHATTAN"& input$year == "All" ){
-#       watertypedata0 <- dataclean(waternew,fulllist[3],fulltime)
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="QUEENS"& input$year == "All" ){
-#       watertypedata0 <- dataclean(waternew,fulllist[4],fulltime)
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="STATEN ISLAND"& input$year == "All" ){
-#       watertypedata0 <- dataclean(waternew,fulllist[5],fulltime)
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="BRONX"& input$year == 2013 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[1],fulltime[1])
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="BROOKLYN"& input$year == 2013 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[2],fulltime[1])
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="MANHATTAN"& input$year == 2013 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[3],fulltime[1])
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="QUEENS"& input$year == 2013 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[4],fulltime[1])
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="STATEN ISLAND"& input$year == 2013 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[5],fulltime[1])
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="BRONX"& input$year == 2014 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[1],fulltime[2])
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="BROOKLYN"& input$year == 2014 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[2],fulltime[2])
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="MANHATTAN"& input$year == 2014 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[3],fulltime[2])
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="QUEENS"& input$year == 2014 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[4],fulltime[2])
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="STATEN ISLAND"& input$year == 2014 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[5],fulltime[2])
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="BRONX"& input$year == 2015 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[1],fulltime[3])
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="BROOKLYN"& input$year == 2015 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[2],fulltime[3])
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="MANHATTAN"& input$year == 2015 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[3],fulltime[3])
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="QUEENS"& input$year == 2015 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[4],fulltime[3])
-#       watertypedata <- calculation(watertypedata0)}
-#     if ( input$borough=="STATEN ISLAND"& input$year == 2015 ){
-#       watertypedata0 <- dataclean(waternew,fulllist[5],fulltime[3])
-#       watertypedata <- calculation(watertypedata0)}
-#     piechart(watertypedata)
-# 
-#             },bg="transparent")
-#   
-  output$Map <- renderLeaflet({
-    if (input$year==4){waterdendata <- dataclean(waternew,fulllist,fulltime)}
-    if (input$year==3){waterdendata <- dataclean(waternew,fulllist,fulltime[3])}
-    if (input$year==2){waterdendata <- dataclean(waternew,fulllist,fulltime[2])}
-    if (input$year==1){waterdendata <- dataclean(waternew,fulllist,fulltime[1])}
-    leaflet(waterdendata) %>% addTiles() %>% addProviderTiles("Stamen.TonerLite") %>% 
-        setView(lng = -73.9857, lat = 40.7577, zoom = 12)%>%
-        addCircleMarkers(radius=6, fillOpacity = 0.5, popup = paste(waterdendata$Date),
-                         clusterOptions = markerClusterOptions())
+  output$piechart <- renderPlotly({
+    watertypedata0 <- calculation(dataclean(waternew,fulllist[as.numeric(input$borough)],fulltime[as.numeric(input$year)]))
+        q <- plot_ly(type='pie',values=watertypedata0[,4],labels=watertypedata0[,1])%>%
+      layout(paper_bgcolor='rgba(0,0,0,0)',plot_bgcolor='rgba(0,0,0,0)',title='Complaint Types Proportion')
+        q
+
+                     })
+    
+  output$baseMap  <- renderMap({
+    baseMap <- Leaflet$new()
+    baseMap$setView(c(40.7577,-73.9857), 10)
+    baseMap$tileLayer(provider = "Stamen.TonerLite")
+    baseMap
   })
+  
+  output$heatMap <- renderUI({
+    watermap <- waternew1[waternew1[,3]==input$year,]
+    watermap <- as.data.table(watermap)
+    watermap <- watermap[(Latitude != ""), .(count = .N), by=.(Latitude, Longitude)]
+    j <- paste0("[",watermap[,Latitude], ",", watermap[,Longitude], ",", watermap[,count], "]", collapse=",")
+    j <- paste0("[",j,"]")
+    tags$body(tags$script(HTML(sprintf("
+                                var addressPoints = %s
+if (typeof heat === typeof undefined) {
+            heat = L.heatLayer(addressPoints)
+            heat.addTo(map)
+          } else {
+            heat.setOptions()
+            heat.setLatLngs(addressPoints)
+          }"
+                                       , j))))
+  }) 
 })
 
