@@ -25,7 +25,7 @@ library(dplyr)
 # 
 
 #read data
- waternew <- readRDS("../data/pie.rds")
+waternew <- readRDS("../data/pie.rds")
 map1 <- readRDS("../data/map1.rds")
 map2 <- readRDS("../data/map2.rds")
 map3 <- readRDS("../data/map3.rds")

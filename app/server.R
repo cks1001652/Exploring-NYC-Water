@@ -1,20 +1,19 @@
-#setwd("/Users/Josh/Documents/Spring 2016/DataScience/Project2/project2-cycle2-8/")
 library(shiny)
 library(plyr)
 library(dplyr)
 library(data.table)
 library(wordcloud)
-#library(plyr)
 library(plotly)
 library(zoo)
 library(leaflet)
 library(rCharts)
+
 # Read in data
 water <- readRDS("../data/data_4.Rds")
 water$Created.Date <- NULL
 water$Resolution.Action.Updated.Date <- NULL
 
-#################### Josh's Data ####################
+#################### Data ####################
 water_qual <- readRDS("../data/water_quality.rds")
 # https://data.cityofnewyork.us/Environment/Drinking-Water-Quality-Distribution-Monitoring-Dat/bkwf-xfky
 water_qual_Turbid <- aggregate(water_qual$Turbidity, list(water_qual$Date), mean)
@@ -49,12 +48,11 @@ rep_q_water_table <- plyr::rename(rep_q_water_table, c("Var1"="Date", "Var2"="De
 #rep_q_water_table_monthly <- aggregate(rep_q_water_table$Number, list(rep_q_water_table$Date), sum)
 #rep_q_water_table_monthly$Group.1 <- mapvalues(rep_q_water_table_monthly$Group.1, from = rep_q_water_table_monthly$Group.1, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
 
+final_shiny <- readRDS("../data/final_shiny.rds")
+
+shiny2_stacked <- readRDS("../data/shiny2_stacked.rds")
 
 source(file = "Global.R")
-
-
-
-#################### End of Josh's Data ####################
 
 shinyServer(function(input, output) {
 
@@ -135,20 +133,13 @@ shinyServer(function(input, output) {
   })  
 #################### End of Josh's Output ####################
 
-<<<<<<< HEAD
-=======
-
-  
-################### End of Josh's Output ####################
-  
->>>>>>> TZstatsADS/master
 ################### Start Richard's Output###################
 output$piechart <- renderPlotly({
 #   detach("package:plyr",unload=T)
   watertypedata0 <- calculation(dataclean(waternew,fulllist[as.numeric(input$borough)],fulltime[as.numeric(input$year)]))
-  q <- plot_ly(type='pie',values=watertypedata0[,4],labels=watertypedata0[,1])%>%
-    layout(q, paper_bgcolor='rgba(0,0,0,0)',plot_bgcolor='rgba(0,0,0,0)',title='Complaint Types Proportion')
-  #q
+  q <- plot_ly(type='pie', values=watertypedata0[,4], labels=watertypedata0[,1])%>%
+    layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', title='Complaint Types Proportion')
+  q
 #   library(plyr)
 })
 
@@ -193,14 +184,11 @@ if (typeof heat === typeof undefined) {
 }) 
 ################## End Richard's Output##############
 
-<<<<<<< HEAD
-
-=======
 ################## Start Schinria's Output##############
 
-final_shiny <- readRDS("../data/final_shiny.rds")
+#final_shiny <- readRDS("../data/final_shiny.rds")
 
-shiny2_stacked <- readRDS("../data/shiny2_stacked.rds")
+#shiny2_stacked <- readRDS("../data/shiny2_stacked.rds")
 
 output$myChart <- renderChart({
   shiny2 = as.data.frame(shiny2_stacked)
@@ -216,7 +204,7 @@ output$myChart <- renderChart({
 output$duplicatePlot <- renderPlot({
   
   # Render a barplot
-  barplot(final_shiny[,input$borough],
+  barplot(final_shiny[,input$burr],
           main=input$borough,
           col = topo.colors(12),
           ylab="Number of Duplicate Complaints",
@@ -225,6 +213,5 @@ output$duplicatePlot <- renderPlot({
 
 
 ################## End Schinria's Output##############
->>>>>>> TZstatsADS/master
 
 })
