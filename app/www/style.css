@@ -23,6 +23,11 @@ table {
 .col-sm-4 {
   padding-top: 60px;
 }
+.side form.well {
+  background: transparent;
+  border: 0px;
+  
+}
 .descrip_plot {
 
   border: 1px solid #e3e3e3;

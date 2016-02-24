@@ -65,10 +65,7 @@ rep_q_water_table <- plyr::rename(rep_q_water_table, c("Var1"="Date", "Var2"="De
 
 final_shiny_1 <- readRDS("../data/final_shiny.rds")
 
-<<<<<<< Updated upstream
-=======
 shiny2_stacked_1 <- readRDS("../data/shiny2_stacked.rds")
->>>>>>> Stashed changes
 
 source(file = "Global.R")
 
@@ -146,7 +143,7 @@ shinyServer(function(input, output) {
     
     p<- plot_ly(water_qual_Turbid, x =Date, y =Turbidity, name = "Turbidity Level", colors=brewer.pal(3, "BrBG"), text=paste("Turbidity:", Turbidity, " (NTU)")) %>%
     add_trace(rep_q_water_table_monthly, x=rep_q_water_table_monthly$Group.1, y = rep_q_water_table_monthly$x, name = "NYC Resident Complaints", yaxis = "y2", text=paste("Num of complaints:", rep_q_water_table_monthly$x))
-    layout(p, xaxis = x_axis, yaxis=y_axis, yaxis2 = ay) %>% config(displayModeBar = F)
+    layout(p, xaxis = x_axis, yaxis=y_axis, yaxis2 = ay, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)') %>% config(displayModeBar = F)
     
   })  
 #################### End of Josh's Output ####################
@@ -156,9 +153,17 @@ output$piechart <- renderPlotly({
 #   detach("package:plyr",unload=T)
   watertypedata0 <- calculation(dataclean(waternew,fulllist[as.numeric(input$borough)],fulltime[as.numeric(input$year)]))
   q <- plot_ly(type='pie', values=watertypedata0[,4], labels=watertypedata0[,1])%>%
-    layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', title='Complaint Types Proportion') %>% config(displayModeBar = F)
+    layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)') %>% config(displayModeBar = F)
   q
 #   library(plyr)
+})
+
+output$heat_text = renderText({
+  paste("Heat Graph of All Complaints")
+})
+
+output$pie_text = renderText({
+  paste("Pie Chart of Borough Complaints")
 })
 
 output$baseMap  <- renderMap({
@@ -211,11 +216,8 @@ if (typeof heat === typeof undefined) {
 
 
 output$myChart <- renderChart({
-<<<<<<< Updated upstream
  
-=======
   shiny2 = (shiny2_stacked_1)
->>>>>>> Stashed changes
   p6 <- nPlot(Frequency ~ Borough, group = 'Type', data = shiny2, 
               type = input$type, dom = 'myChart', width = 800)
   p6$chart(color = c('green', 'brown'), stacked = input$stack)

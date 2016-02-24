@@ -5,18 +5,14 @@ shinyUI(navbarPage("Exploring NYC's Water", theme = "style.css",
   
   
 #################### Start of a Menu Item ####################  
-    tabPanel("Overview",
-      # Sidebar with a selector input for neighborhood
-      sidebarLayout(
-        sidebarPanel(
-  
-        ),
-        # Show main panel
-        mainPanel(
-          #h3(code(textOutput("text1"))),
-          
+tabPanel("Main",
+         sidebarLayout(
+           div(class="side", sidebarPanel(width=0)),
+           mainPanel(width=12,
+            img(src="waterstuff6.png", style="width:100%")
+           )
         )
-      )      
+      
     ),
 #################### End of the Menu Item ####################
 
@@ -24,32 +20,35 @@ shinyUI(navbarPage("Exploring NYC's Water", theme = "style.css",
 ###############Start Richard's Menu Item################### 
 navbarMenu("Overview",
            tabPanel("Basic Information",
-                    fluidRow(
-                      column(4,sidebarPanel(width=10,helpText("We display the proportion of the Complaints type and Year it happened"),
+                      sidebarLayout(position="right",
+                      sidebarPanel(width=4,helpText("We display the proportion of the Complaints type and Year it happened"),
                                             selectInput("year","Choose a Year to display",
                                                         choices = list("2013"=1,"2014"=2,"2015"=3),
                                                         selected = 1),
                                             selectInput("borough","Choose a Borough to display",
                                                         choices = list("BRONX"=1,"BROOKLYN"=2,"MANHATTAN"=3,"QUEENS"=4,"STATEN ISLAND"=5),
                                                         selected = 1)
-                      )),
-                      column(8,mainPanel(width=12,plotlyOutput('piechart',height="600px")
+                      ),
+                      mainPanel(width=8,tags$div(class="descrip_text", textOutput("pie_text")), br(),
+                                plotlyOutput('piechart',height="600px")
                                          
-                      ))
-                    )),
+                      
+                    ))),
            
            tabPanel("Density/Heat Map",
-                    headerPanel("Density/Heat map"),
+                    #headerPanel("Density/Heat map"),
+                    sidebarLayout(position="right",
                     sidebarPanel(width=4,selectInput("mapyear","Choose a Year to display",
                                                      choices = list("2013"=1,"2014"=2,"2015"=3),
                                                      selected = 3)
                     ),
                     mainPanel(width=8,
-                              chartOutput("baseMap", "leaflet"),
+                              tags$div(class="descrip_text", textOutput("heat_text")), br(), chartOutput("baseMap", "leaflet"),
                               #leafletOutput("baseMap"),
                               tags$style('.leaflet {height: 500px;}'),
                               tags$head(tags$script(src="http://leaflet.github.io/Leaflet.heat/dist/leaflet-heat.js")),
                               uiOutput('heatMap')
+                    )
                     )
            )),
 
@@ -111,11 +110,7 @@ tabPanel("Duplicates",
                        sidebarPanel(
                          conditionalPanel(condition="input.cPanels==4",
                                           selectInput("burr", "Borough:", 
-<<<<<<< Updated upstream
-                                                      choices=c("BRONX","BROOKLYN","MANHATTAN","QUEENS","STATEN ISLAND")),
-=======
                                                       choices=c("Bronx","Brooklyn","Manhattan","Queens","Staten Island")),
->>>>>>> Stashed changes
                                           hr(),
                                           helpText("Boroughs of NYC that had complaints filed through 311 Service Requests")
                          ),
@@ -150,7 +145,7 @@ tabPanel("Resolution Time",
            fluidPage(
              fluidRow(
                column(3,
-                      h3("All about Time"),
+                      #h3("All about Time"),
                       sidebarPanel(width = 12,
                                    
                                    conditionalPanel(condition = "input.condPanels == 1",
@@ -194,7 +189,7 @@ tabPanel("Resolution Time",
                                    
                       )),
                
-               column(9,mainPanel(width = 11,tabsetPanel(id = "condPanels",
+               column(9,mainPanel(width = 11,tabsetPanel(id = "condPanels",type="pill",
                                                          
                                                          tabPanel("Summary",
                                                                   fluidRow(column(6,plotlyOutput("case2", width="350px",height="350px")),
