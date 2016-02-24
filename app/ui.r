@@ -18,39 +18,39 @@ tabPanel("Main",
 
 
 ###############Start Richard's Menu Item################### 
-navbarMenu("Overview",
-           tabPanel("Basic Information",
-                      sidebarLayout(position="right",
-                      sidebarPanel(width=4,helpText("We display the proportion of the Complaints type and Year it happened"),
+tabPanel("Overview",
+          sidebarLayout(position="right",                            
+                      sidebarPanel(
+                        conditionalPanel(condition="input.ccpanel==1",
+                        helpText("We display the proportion of the Complaints type and Year it happened"),
                                             selectInput("year","Choose a Year to display",
                                                         choices = list("2013"=1,"2014"=2,"2015"=3),
-                                                        selected = 1),
+                                                        selected = 1),br(),
                                             selectInput("borough","Choose a Borough to display",
                                                         choices = list("BRONX"=1,"BROOKLYN"=2,"MANHATTAN"=3,"QUEENS"=4,"STATEN ISLAND"=5),
-                                                        selected = 1)
+                                                        selected = 1)),
+                        
+                        conditionalPanel(condition="input.ccpanel==2",
+                        selectInput("mapyear","Choose a Year to display",
+                                    choices = list("2013"=1,"2014"=2,"2015"=3),
+                                    selected = 3))
+                        
                       ),
-                      mainPanel(width=8,tags$div(class="descrip_text", textOutput("pie_text")), br(),
-                                plotlyOutput('piechart',height="600px")
-                                         
-                      
-                    ))),
-           
-           tabPanel("Density/Heat Map",
-                    #headerPanel("Density/Heat map"),
-                    sidebarLayout(position="right",
-                    sidebarPanel(width=4,selectInput("mapyear","Choose a Year to display",
-                                                     choices = list("2013"=1,"2014"=2,"2015"=3),
-                                                     selected = 3)
-                    ),
-                    mainPanel(width=8,
-                              tags$div(class="descrip_text", textOutput("heat_text")), br(), chartOutput("baseMap", "leaflet"),
-                              #leafletOutput("baseMap"),
-                              tags$style('.leaflet {height: 500px;}'),
-                              tags$head(tags$script(src="http://leaflet.github.io/Leaflet.heat/dist/leaflet-heat.js")),
-                              uiOutput('heatMap')
-                    )
-                    )
-           )),
+                      mainPanel(
+                        tabsetPanel(type="pill",id="ccpanel",
+                            tabPanel("Basic Information",br(),tags$div(class="descrip_text", 
+                                     textOutput("pie_text")), br(),
+                                     plotlyOutput('piechart',height="600px" ),value=1),
+                                            
+                            tabPanel("Basic Information",br(),tags$div(class="descrip_text",
+                                    textOutput("heat_text")), br(),
+                                    chartOutput("baseMap", "leaflet"),
+                               #leafletOutput("baseMap"),
+                                    tags$style('.leaflet {width: 930px;height:580px}'),
+                                    tags$head(tags$script(src="http://leaflet.github.io/Leaflet.heat/dist/leaflet-heat.js")),
+                                    uiOutput('heatMap'),value=2)
+                            )))),
+                    
 
 #################### End of Richard's Menu Item ####################
 
@@ -66,7 +66,8 @@ navbarMenu("Overview",
             br(),
             sliderInput("desc_range", 
               label = "Range of Number of Descriptors",
-              min = 0, max = 13, value = c(0, 13))
+                             min = 1, max = 13, value = 13)
+              #               min = 0, max = 13, value = c(0,13))
           ),
           conditionalPanel(condition="input.conditionedPanels==2",
             helpText("Try selecting different descriptions of water to see if it correlates with water sampled from NYC's upstate reservoirs"),
@@ -93,7 +94,7 @@ navbarMenu("Overview",
             tabPanel("Sampled Water Quality", br(), tags$div(class="descrip_text", textOutput("sample_text")), br(), plotlyOutput("sample_plot"), value=2),
             # Panel 3 is a map showing illness
             #tabPanel("Illness", br(), tags$div(class="descrip_text", textOutput("ill_text")), br(), leafletOutput("ill_map"), value=3),
-            tabPanel("Illness", br(), tags$div(class="descrip_text", textOutput("ill_text")), br(), showOutput("ill_map", "leaflet"), value=3),
+            tabPanel("Illness", br(), tags$div(class="descrip_text", textOutput("ill_text")), br(), showOutput("ill_map", "leaflet"), tags$style('.leaflet {width: 930px;height:560px}'),value=3),
             id = "conditionedPanels"
           ) 
         )
@@ -110,7 +111,7 @@ tabPanel("Duplicates",
                        sidebarPanel(
                          conditionalPanel(condition="input.cPanels==4",
                                           selectInput("burr", "Borough:", 
-                                                      choices=c("Bronx","Brooklyn","Manhattan","Queens","Staten Island")),
+                                                      choices=list("Bronx","Brooklyn","Manhattan","Queens","Staten Island")),
                                           hr(),
                                           helpText("Boroughs of NYC that had complaints filed through 311 Service Requests")
                          ),
@@ -141,12 +142,9 @@ tabPanel("Duplicates",
 #################### xiaoyu s Menu Item ####################
 
 tabPanel("Resolution Time",
-         shinyUI(
-           fluidPage(
-             fluidRow(
-               column(3,
+         sidebarLayout(position="right",
                       #h3("All about Time"),
-                      sidebarPanel(width = 12,
+                      sidebarPanel(
                                    
                                    conditionalPanel(condition = "input.condPanels == 1",
                                                     selectInput("cases", "Case Status:", 
@@ -187,9 +185,9 @@ tabPanel("Resolution Time",
                                                                                "By ComplaintType" = 2), selected = 1))
                                    
                                    
-                      )),
+                      ),
                
-               column(9,mainPanel(width = 11,tabsetPanel(id = "condPanels",type="pill",
+               mainPanel(tabsetPanel(id = "condPanels",type="pill",
                                                          
                                                          tabPanel("Summary",
                                                                   fluidRow(column(6,plotlyOutput("case2", width="350px",height="350px")),
@@ -205,7 +203,7 @@ tabPanel("Resolution Time",
                                                          
                                                          
                                                          
-               )))))))
+               ))))
 
 #################### end of  xiaoyu s Menu Item ####################
 

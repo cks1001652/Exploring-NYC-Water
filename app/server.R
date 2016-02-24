@@ -1,10 +1,9 @@
 library(shiny)
-library(plyr)
+
 library(dplyr)
 library(data.table)
 library(wordcloud)
 library(plotly)
-library(zoo)
 library(leaflet)
 library(rCharts)
 
@@ -13,59 +12,59 @@ require(lubridate)
 library(dygraphs)
 library(xts)
 
-#xiaoyu data
-A <- readRDS("../data/ONE.Rds")
-FIVE <- readRDS("../data/FIVE.Rds")
-THREE <- readRDS("../data/THREE.Rds")
-
-C <- data.frame(Borough = A$Borough[A$Status == "Closed"], 
-                Complaint.Type = A$Complaint.Type[A$Status == "Closed"],Days = A$Days[A$Status == "Closed"])
-
-## error 
-final_shiny <- readRDS("../data/final_shiny.rds")
-shiny2_stacked <- readRDS("../data/shiny2_stacked.rds")
-
-
-# Read in data
-water <- readRDS("../data/data_4.Rds")
-water$Created.Date <- NULL
-water$Resolution.Action.Updated.Date <- NULL
-
-#################### Data ####################
-water_qual_Turbid <- readRDS("../data/turbid.RDS")
-water_qual_Chlorine <- readRDS("../data/chlorine.RDS")
-# https://data.cityofnewyork.us/Environment/Drinking-Water-Quality-Distribution-Monitoring-Dat/bkwf-xfky
-#water_qual_Turbid <- aggregate(water_qual$Turbidity, list(water_qual$Date), mean)
-#water_qual_Turbid <- plyr::rename(water_qual_Turbid, c("Group.1"="Date", "x"="Turbidity"))
-#water_qual_Turbid$Date <- format(as.yearmon(water_qual_Turbid$Date, "%m/%d/%Y"), "%m")
-#water_qual_Turbid <- aggregate(water_qual_Turbid$Turbidity, list(water_qual_Turbid$Date), mean)
-#water_qual_Turbid <- plyr::rename(water_qual_Turbid, c("Group.1"="Date", "x"="Turbidity"))
-#water_qual_Turbid$Date <- mapvalues(water_qual_Turbid$Date, from = water_qual_Turbid$Date, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
-
-#water_qual_Chlorine <- aggregate(water_qual$Chlorine, list(water_qual$Date), mean)
-#water_qual_Chlorine <- plyr::rename(water_qual_Chlorine, c("Group.1"="Date", "x"="Chlorine"))
-#water_qual_Chlorine$Date <- format(as.yearmon(water_qual_Chlorine$Date, "%m/%d/%Y"), "%m")
-#water_qual_Chlorine <- aggregate(water_qual_Chlorine$Chlorine, list(water_qual_Chlorine$Date), mean)
-#water_qual_Chlorine <- plyr::rename(water_qual_Chlorine, c("Group.1"="Date", "x"="Chlorine"))
-#water_qual_Chlorine$Date <- mapvalues(water_qual_Chlorine$Date, from = water_qual_Chlorine$Date, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
-
-
-drink_water <- filter(water, water$Complaint.Type == "Drinking Water")
-quality_water <- filter(water, water$Complaint.Type == "Water Quality")
-
-quality_water$Descriptor <- mapvalues(quality_water$Descriptor, from = c(unique(quality_water$Descriptor)), to=c("Chlorine Taste/Odor", "Other", "Cloudy Water", "Other Water Problem", "Milky Water", "Unknown Taste", "Metallic Taste/Odor", "Musty Taste/Odor", "Clear w/ Particles", "Chemical Taste", "Sewer Taste/Odor", "Oil in Water", "Other", "Clear with Insects/Worms"))
-
-rep_q_water <- quality_water
-rep_q_water <- rep_q_water[grepl("2015", rep_q_water$Date),]
-rep_q_water$Date <- (format(as.yearmon(rep_q_water$Date, "%Y-%m-%d"), "%m"))
-
-# Main data table
-rep_q_water_table <- as.data.frame(table(rep_q_water$Date, rep_q_water$Descriptor))
-rep_q_water_table <- plyr::rename(rep_q_water_table, c("Var1"="Date", "Var2"="Descriptor", "Freq"="Number"))
-
-final_shiny_1 <- readRDS("../data/final_shiny.rds")
-
-shiny2_stacked_1 <- readRDS("../data/shiny2_stacked.rds")
+# #xiaoyu data
+# A <- readRDS("../data/ONE.Rds")
+# FIVE <- readRDS("../data/FIVE.Rds")
+# THREE <- readRDS("../data/THREE.Rds")
+# 
+# C <- data.frame(Borough = A$Borough[A$Status == "Closed"], 
+#                 Complaint.Type = A$Complaint.Type[A$Status == "Closed"],Days = A$Days[A$Status == "Closed"])
+# 
+# ## error 
+# # final_shiny <- readRDS("../data/final_shiny.rds")
+# # shiny2_stacked <- readRDS("../data/shiny2_stacked.rds")
+# 
+# 
+# # Read in data
+# water <- readRDS("../data/data_4.Rds")
+# water$Created.Date <- NULL
+# water$Resolution.Action.Updated.Date <- NULL
+# 
+# #################### Data ####################
+# water_qual_Turbid <- readRDS("../data/turbid.RDS")
+# water_qual_Chlorine <- readRDS("../data/chlorine.RDS")
+# # https://data.cityofnewyork.us/Environment/Drinking-Water-Quality-Distribution-Monitoring-Dat/bkwf-xfky
+# #water_qual_Turbid <- aggregate(water_qual$Turbidity, list(water_qual$Date), mean)
+# #water_qual_Turbid <- plyr::rename(water_qual_Turbid, c("Group.1"="Date", "x"="Turbidity"))
+# #water_qual_Turbid$Date <- format(as.yearmon(water_qual_Turbid$Date, "%m/%d/%Y"), "%m")
+# #water_qual_Turbid <- aggregate(water_qual_Turbid$Turbidity, list(water_qual_Turbid$Date), mean)
+# #water_qual_Turbid <- plyr::rename(water_qual_Turbid, c("Group.1"="Date", "x"="Turbidity"))
+# #water_qual_Turbid$Date <- mapvalues(water_qual_Turbid$Date, from = water_qual_Turbid$Date, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
+# 
+# #water_qual_Chlorine <- aggregate(water_qual$Chlorine, list(water_qual$Date), mean)
+# #water_qual_Chlorine <- plyr::rename(water_qual_Chlorine, c("Group.1"="Date", "x"="Chlorine"))
+# #water_qual_Chlorine$Date <- format(as.yearmon(water_qual_Chlorine$Date, "%m/%d/%Y"), "%m")
+# #water_qual_Chlorine <- aggregate(water_qual_Chlorine$Chlorine, list(water_qual_Chlorine$Date), mean)
+# #water_qual_Chlorine <- plyr::rename(water_qual_Chlorine, c("Group.1"="Date", "x"="Chlorine"))
+# #water_qual_Chlorine$Date <- mapvalues(water_qual_Chlorine$Date, from = water_qual_Chlorine$Date, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
+# 
+# 
+# drink_water <- filter(water, water$Complaint.Type == "Drinking Water")
+# quality_water <- filter(water, water$Complaint.Type == "Water Quality")
+# 
+# quality_water$Descriptor <- mapvalues(quality_water$Descriptor, from = c(unique(quality_water$Descriptor)), to=c("Chlorine Taste/Odor", "Other", "Cloudy Water", "Other Water Problem", "Milky Water", "Unknown Taste", "Metallic Taste/Odor", "Musty Taste/Odor", "Clear w/ Particles", "Chemical Taste", "Sewer Taste/Odor", "Oil in Water", "Other", "Clear with Insects/Worms"))
+# 
+# rep_q_water <- quality_water
+# rep_q_water <- rep_q_water[grepl("2015", rep_q_water$Date),]
+# rep_q_water$Date <- (format(as.yearmon(rep_q_water$Date, "%Y-%m-%d"), "%m"))
+# 
+# # Main data table
+# rep_q_water_table <- as.data.frame(table(rep_q_water$Date, rep_q_water$Descriptor))
+# rep_q_water_table <- plyr::rename(rep_q_water_table, c("Var1"="Date", "Var2"="Descriptor", "Freq"="Number"))
+# 
+# final_shiny_1 <- readRDS("../data/final_shiny.rds")
+# 
+# shiny2_stacked_1 <- readRDS("../data/shiny2_stacked.rds")
 
 source(file = "Global.R")
 
@@ -101,12 +100,15 @@ shinyServer(function(input, output) {
     # min.freq = input$freq, max.words=input$max,
     df <- as.data.frame(table(quality_water$Descriptor))
     par(bg="#f5f5f5")
-    wordcloud_rep(df$Var1, df$Freq, min.freq = input$desc_range[1], max.words=input$desc_range[2], scale=c(3,1), random.order = TRUE, random.color=TRUE, rot.per=.3,
+#     wordcloud_rep(df$Var1, df$Freq, min.freq = input$desc_range[1], max.words=input$desc_range[2], scale=c(3,1), random.order = TRUE, random.color=TRUE, rot.per=.3,
+#                   colors=brewer.pal(8, "Dark2"))
+    wordcloud_rep(df$Var1, df$Freq, min.freq = 1, max.words=input$desc_range, scale=c(3,0.5), random.order = TRUE, random.color=TRUE, rot.per=.3,
                   colors=brewer.pal(8, "Dark2"))
   })
   
   output$descrip_text = renderText({
-      paste("Viewing ", input$desc_range[1], " to ", max.words=input$desc_range[2], "descriptors")
+#       paste("Viewing Top ", max.words=input$desc_range[2], "descriptors")
+        paste("Viewing Top ", max.words=input$desc_range, "descriptors")
   })
 
   output$sample_text = renderText({
@@ -230,13 +232,44 @@ output$myChart <- renderChart({
 output$duplicatePlot <- renderPlot({
   
   # Render a barplot
-  barplot(final_shiny_1[,input$burr],
-          main=input$borough,
-          col = topo.colors(12),
-          ylab="Number of Duplicate Complaints",
-          xlab="Year", ylim=c(0,max(final_shiny_1)))
-})
+#   barplot(final_shiny_1[,"Bronx"],
+#           main="Bronx",
+#           col = topo.colors(12),
+#           ylab="Number of Duplicate Complaints",
+#           xlab="Year", ylim=c(0,max(final_shiny_1)))
+  if(input$burr=="Bronx"){
+    final_shiny_2 <- bor1
+  }
+  else if(input$burr=="Brooklyn"){
+    final_shiny_2 <- bor2
+  }
+  else if(input$burr=="Manhattan"){
+    final_shiny_2 <- bor3
+  }
+  else if(input$burr=="Queens"){
+    final_shiny_2 <- bor4
+  }
+  else{
+    final_shiny_2 <- bor5
+  }
+  c <- ggplot(final_shiny_2,aes(x=year,y=duplicates))+
+    geom_bar(stat="identity",colour=c(topo.colors(2)[1],topo.colors(2)[2]),fill=c(topo.colors(2)[1],topo.colors(2)[2]))+
+    theme(
+          panel.background = element_rect(fill = "transparent",colour = NA), # or theme_blank()
+          panel.grid.major = element_blank(),
+          panel.grid.major = element_blank(),
+          plot.background = element_rect(fill = "transparent",colour = NA))+
+    xlab("Year")+
+    ylab("Number of Duplicate Complaints")+
+    scale_y_continuous(limits = c(0, max(final_shiny_1)))+
+    ggtitle(paste("Borough",input$burr))
+  
+  c
+}, bg="transparent")
 
+diamonds
+meanprice <- tapply(diamonds$price, diamonds$cut, mean)
+cut <- factor(levels(diamonds$cut), levels = levels(diamonds$cut))
 
 ################## End Schinria's Output##############
 
