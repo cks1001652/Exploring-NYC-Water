@@ -1,16 +1,29 @@
-# setwd("/Users/Josh/Documents/Spring 2016/DataScience/Project2/project2-cycle2-8/")
 library(shiny)
-# 
 library(plyr)
 library(dplyr)
-
 library(data.table)
 library(wordcloud)
-
 library(plotly)
 library(zoo)
 library(leaflet)
+library(rCharts)
 
+library(ggplot2)
+require(lubridate)
+library(dygraphs)
+library(xts)
+
+#xiaoyu data
+A <- readRDS("../data/ONE.Rds")
+FIVE <- readRDS("../data/FIVE.Rds")
+THREE <- readRDS("../data/THREE.Rds")
+
+C <- data.frame(Borough = A$Borough[A$Status == "Closed"], 
+                Complaint.Type = A$Complaint.Type[A$Status == "Closed"],Days = A$Days[A$Status == "Closed"])
+
+## error 
+final_shiny <- readRDS("../data/final_shiny.rds")
+shiny2_stacked <- readRDS("../data/shiny2_stacked.rds")
 
 
 # Read in data
@@ -18,23 +31,21 @@ water <- readRDS("../data/data_4.Rds")
 water$Created.Date <- NULL
 water$Resolution.Action.Updated.Date <- NULL
 
-
-################### Josh's Data ####################
-
+#################### Data ####################
 water_qual <- readRDS("../data/water_quality.rds")
 # https://data.cityofnewyork.us/Environment/Drinking-Water-Quality-Distribution-Monitoring-Dat/bkwf-xfky
 water_qual_Turbid <- aggregate(water_qual$Turbidity, list(water_qual$Date), mean)
-water_qual_Turbid <- rename(water_qual_Turbid, c("Group.1"="Date", "x"="Turbidity"))
+water_qual_Turbid <- plyr::rename(water_qual_Turbid, c("Group.1"="Date", "x"="Turbidity"))
 water_qual_Turbid$Date <- format(as.yearmon(water_qual_Turbid$Date, "%m/%d/%Y"), "%m")
 water_qual_Turbid <- aggregate(water_qual_Turbid$Turbidity, list(water_qual_Turbid$Date), mean)
-water_qual_Turbid <- rename(water_qual_Turbid, c("Group.1"="Date", "x"="Turbidity"))
+water_qual_Turbid <- plyr::rename(water_qual_Turbid, c("Group.1"="Date", "x"="Turbidity"))
 water_qual_Turbid$Date <- mapvalues(water_qual_Turbid$Date, from = water_qual_Turbid$Date, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
 
 water_qual_Chlorine <- aggregate(water_qual$Chlorine, list(water_qual$Date), mean)
-water_qual_Chlorine <- rename(water_qual_Chlorine, c("Group.1"="Date", "x"="Chlorine"))
+water_qual_Chlorine <- plyr::rename(water_qual_Chlorine, c("Group.1"="Date", "x"="Chlorine"))
 water_qual_Chlorine$Date <- format(as.yearmon(water_qual_Chlorine$Date, "%m/%d/%Y"), "%m")
 water_qual_Chlorine <- aggregate(water_qual_Chlorine$Chlorine, list(water_qual_Chlorine$Date), mean)
-water_qual_Chlorine <- rename(water_qual_Chlorine, c("Group.1"="Date", "x"="Chlorine"))
+water_qual_Chlorine <- plyr::rename(water_qual_Chlorine, c("Group.1"="Date", "x"="Chlorine"))
 water_qual_Chlorine$Date <- mapvalues(water_qual_Chlorine$Date, from = water_qual_Chlorine$Date, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
 
 
@@ -48,30 +59,39 @@ rep_q_water <- rep_q_water[grepl("2015", rep_q_water$Date),]
 rep_q_water$Date <- (format(as.yearmon(rep_q_water$Date, "%Y-%m-%d"), "%m"))
 
 # Main data table
-
 rep_q_water_table <- as.data.frame(table(rep_q_water$Date, rep_q_water$Descriptor))
-rep_q_water_table <- rename(rep_q_water_table, c("Var1"="Date", "Var2"="Descriptor", "Freq"="Number"))
+rep_q_water_table <- plyr::rename(rep_q_water_table, c("Var1"="Date", "Var2"="Descriptor", "Freq"="Number"))
+
 # Total data table
 #rep_q_water_table_monthly <- aggregate(rep_q_water_table$Number, list(rep_q_water_table$Date), sum)
 #rep_q_water_table_monthly$Group.1 <- mapvalues(rep_q_water_table_monthly$Group.1, from = rep_q_water_table_monthly$Group.1, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
 
 
-source(file = "../app/Global.R")
-
-#################### End of Josh's Data ####################
+source(file = "Global.R")
 
 shinyServer(function(input, output) {
 
-################### Josh's Output ####################
-  output$ill_map <- renderLeaflet({
+#################### Josh's Output ####################
+  output$ill_map <- renderMap({ #renderLeaflet
     if(input$ill_year == "All"){
       drink_water2 <- drink_water
     } else {
       drink_water2 <- drink_water[grepl(input$ill_year, drink_water$Date),]
-    } 
+    }
+    drink_water2 <- na.omit(drink_water2)
     
-    
-    leaflet(na.omit(drink_water2)) %>% addTiles() %>% addProviderTiles("CartoDB.DarkMatter") %>%setView(lng = -73.9857, lat = 40.7577, zoom = 12) %>% addCircleMarkers(radius=6, fillOpacity = 0.5, popup = paste("Location: ", drink_water2$Incident.Address), clusterOptions = markerClusterOptions())
+    leaf_map <- Leaflet$new()
+    leaf_map$setView(c(40.7577,-73.9857), 10)
+    leaf_map$tileLayer(provider = "Stamen.TonerLite")
+    for (i in 1:nrow(drink_water2)) {leaf_map$marker(c(drink_water2$Latitude[i], drink_water2$Longitude[i]), bindPopup = paste("Location: ", drink_water2$Incident.Address[i])) }
+    #leaf_map$marker(c(drink_water2$Latitude[1], drink_water2$Longitude[1]), bindPopup = paste("Location: ", drink_water2$Incident.Address[1]))
+    leaf_map
+    #leaflet(na.omit(drink_water2)) %>% addTiles() %>% addProviderTiles("CartoDB.DarkMatter") %>%setView(lng = -73.9857, lat = 40.7577, zoom = 12) %>% addCircleMarkers(radius=6, fillOpacity = 0.5, popup = paste("Location: ", drink_water2$Incident.Address), clusterOptions = markerClusterOptions())
+    #m <- leaflet(na.omit(drink_water2))
+    #m <- addProviderTiles(m, "CartoDB.DarkMatter")
+    #m <- setView(m, lng = -73.9857, lat = 40.7577, zoom = 12)
+    #m <- addCircleMarkers(m, radius=6, fillOpacity = 0.5, popup = paste("Location: ", drink_water2$Incident.Address), clusterOptions = markerClusterOptions())
+    #m
   })
   
   # Make the wordcloud drawing predictable during a session
@@ -123,19 +143,17 @@ shinyServer(function(input, output) {
     
     p<- plot_ly(water_qual_Turbid, x =Date, y =Turbidity, name = "Turbidity Level", colors=brewer.pal(3, "BrBG"), text=paste("Turbidity:", Turbidity, " (NTU)")) %>%
     add_trace(rep_q_water_table_monthly, x=rep_q_water_table_monthly$Group.1, y = rep_q_water_table_monthly$x, name = "NYC Resident Complaints", yaxis = "y2", text=paste("Num of complaints:", rep_q_water_table_monthly$x))
-    layout(p, xaxis = x_axis, yaxis=y_axis, yaxis2 = ay)
+    layout(p, xaxis = x_axis, yaxis=y_axis, yaxis2 = ay) %>% config(displayModeBar = F)
     
-  })
+  })  
+#################### End of Josh's Output ####################
 
-
-  
-################### End of Josh's Output ####################
 ################### Start Richard's Output###################
 output$piechart <- renderPlotly({
 #   detach("package:plyr",unload=T)
   watertypedata0 <- calculation(dataclean(waternew,fulllist[as.numeric(input$borough)],fulltime[as.numeric(input$year)]))
-  q <- plot_ly(type='pie',values=watertypedata0[,4],labels=watertypedata0[,1])%>%
-    layout(paper_bgcolor='rgba(0,0,0,0)',plot_bgcolor='rgba(0,0,0,0)',title='Complaint Types Proportion')
+  q <- plot_ly(type='pie', values=watertypedata0[,4], labels=watertypedata0[,1])%>%
+    layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', title='Complaint Types Proportion') %>% config(displayModeBar = F)
   q
 #   library(plyr)
 })
@@ -145,6 +163,9 @@ output$baseMap  <- renderMap({
   baseMap$setView(c(40.7577,-73.9857), 10)
   baseMap$tileLayer(provider = "Stamen.TonerLite")
   baseMap
+  
+  #leaflet() %>% addTiles() %>% addProviderTiles("Stamen.TonerLite") %>%setView(lat=40.7577,lng=-73.9857, zoom=10)
+  
 })
 
 output$heatMap <- renderUI({
@@ -177,4 +198,178 @@ if (typeof heat === typeof undefined) {
   
 }) 
 ################## End Richard's Output##############
+
+################## Start Schinria's Output##############
+
+#final_shiny <- readRDS("../data/final_shiny.rds")
+
+#shiny2_stacked <- readRDS("../data/shiny2_stacked.rds")
+
+
+
+output$myChart <- renderChart({
+ 
+  p6 <- nPlot(Frequency ~ Borough, group = 'Type', data = shiny2, 
+              type = input$type, dom = 'myChart', width = 800)
+  p6$chart(color = c('green', 'brown'), stacked = input$stack)
+  
+  p6$yAxis(tickFormat = "#! function(d) {return d3.format(',.2f')(d)} !#")
+  
+  p6
+})
+
+output$duplicatePlot <- renderPlot({
+  
+  # Render a barplot
+  barplot(final_shiny[,input$burr],
+          main=input$borough,
+          col = topo.colors(12),
+          ylab="Number of Duplicate Complaints",
+          xlab="Year", ylim=c(0,max(final_shiny)))
+})
+
+
+################## End Schinria's Output##############
+
+
+#################### XIAOYU's Output ####################  
+output$dygraph <- renderDygraph({
+  data <- switch(input$time, 
+                 "1" = FIVE[,1],
+                 "2" = FIVE[,2],
+                 "3" = FIVE[,3],
+                 "4" = FIVE[,4],
+                 "5" = FIVE[,5],
+                 "6" = FIVE[,6])
+  
+  data2 <- switch(input$compare, 
+                  "1" = NULL,
+                  "2" = FIVE[,2],
+                  "3" = FIVE[,3],
+                  "4" = FIVE[,4],
+                  "5" = FIVE[,5],
+                  "6" = FIVE[,6])
+  
+  data3 <- cbind(data,data2)
+  
+  name <- paste(names(data),"    ", names(data2))
+  dygraph(data3, main = name) %>% dyRangeSelector()
+  
+})
+
+output$dygraph2 <- renderDygraph({
+  
+  data_one <- switch(input$type_2, 
+                 "1" = THREE[,1],
+                 "2" = THREE[,2],
+                 "3" = THREE[,3],
+                 "4" = THREE[,4])
+  
+  data_two <- switch(input$com, 
+                  "0" = NULL,
+                  "1" = THREE[,1],
+                  "2" = THREE[,2],
+                  "3" = THREE[,3],
+                  "4" = THREE[,4])
+  
+  data_three <- cbind(data_one,data_two)
+  
+  name <- paste(names(data_one),"    ", names(data_two))
+  
+  dygraph(data_three, main = name) %>% dyRangeSelector() 
+  
+})
+
+output$plot <- renderPlotly({
+  
+  if (input$status == 1) {
+    
+    x <- list(
+      showticklabels = F
+    )
+    
+    y <- list(
+      range = c(-2,12)
+    )
+    
+    plot_ly(C, x = Borough, y = Days, color = Borough, type = "box", boxmean = T) %>% 
+      layout(paper_bgcolor = 'rgba(0,0,0,0)',plot_bgcolor = 'rgba(0,0,0,0)', xaxis = x, yaxis = y, title = "Resolution Time by Boroughs") %>% config(displayModeBar = F)
+    
+  }
+  
+  else {
+    
+    x <- list(
+      showticklabels = F
+    )
+    
+    z <- list(
+      range = c(-5,55)
+    )
+    
+    plot_ly(C, x = Complaint.Type, y = Days, color = Complaint.Type, type = "box", boxmean = T) %>% 
+      layout(paper_bgcolor = 'rgba(0,0,0,0)',plot_bgcolor = 'rgba(0,0,0,0)', xaxis = x, yaxis = z, title = "Resolution Time by Boroughs") %>% config(displayModeBar = F)
+  } 
+  
+})
+
+
+output$view <- renderTable({
+  
+  summary <- data.frame(tapply(
+    A$Days[A$Status == "Closed"], list(A$Complaint.Type[A$Status == "Closed"], 
+                                       A$Borough[A$Status == "Closed"]), mean, na.rm=TRUE))
+  summary
+  
+})
+
+
+output$case2 <- renderPlotly({  
+  
+  if(input$cases == 1) {
+    
+    Borough <- data.frame(summary(A$Borough[A$Status == "Open"]))
+    value <- c(Borough[,1])
+    name <- c(rownames(Borough))
+    plot_ly(values = value, labels = c(name),type="pie", showlegend = F) %>% 
+      layout(paper_bgcolor = 'rgba(0,0,0,0)',plot_bgcolor = 'rgba(0,0,0,0)',title = "Open cases by Borough") %>% config(displayModeBar = F)
+    
+  }
+  else {
+    
+    Borough <- data.frame(summary(A$Borough[A$Status == "Closed"]))
+    value <- c(Borough[,1])
+    name <- c(rownames(Borough))
+    plot_ly(values = value, labels = c(name),type="pie", showlegend = F) %>% 
+      layout(paper_bgcolor = 'rgba(0,0,0,0)',plot_bgcolor = 'rgba(0,0,0,0)', title = "Closed cases by Borough") %>% config(displayModeBar = F)
+    
+  } 
+  
+})
+
+output$case3 <- renderPlotly({  
+  
+  if(input$cases == 1) {
+    
+    Type <- data.frame(summary(A$Complaint.Type[A$Status == "Open"]))
+    value <- c(Type[,1])
+    name <- c(rownames(Type))
+    plot_ly(values = value, labels = c(name),type="pie", showlegend = F) %>% 
+      layout(paper_bgcolor = 'rgba(0,0,0,0)',plot_bgcolor = 'rgba(0,0,0,0)',title = "Open cases by Complaint.Type") %>% config(displayModeBar = F)
+    
+  }
+  else{
+    
+    Type <- data.frame(summary(A$Complaint.Type[A$Status == "Closed"]))
+    value <- c(Type[,1])
+    name <- c(rownames(Type))
+    plot_ly(values = value, labels = c(name),type="pie" ,showlegend = F) %>% 
+      layout(paper_bgcolor = 'rgba(0,0,0,0)',plot_bgcolor = 'rgba(0,0,0,0)',title = "Closed cases by Complaint.Type") %>% config(displayModeBar = F)
+    
+  } 
+  
+})
+
+#################### End of XIAOYU's Output ####################
+
 })
