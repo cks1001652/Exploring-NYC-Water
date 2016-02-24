@@ -32,21 +32,22 @@ water$Created.Date <- NULL
 water$Resolution.Action.Updated.Date <- NULL
 
 #################### Data ####################
-water_qual <- readRDS("../data/water_quality.rds")
+water_qual_Turbid <- readRDS("../data/turbid.RDS")
+water_qual_Chlorine <- readRDS("../data/chlorine.RDS")
 # https://data.cityofnewyork.us/Environment/Drinking-Water-Quality-Distribution-Monitoring-Dat/bkwf-xfky
-water_qual_Turbid <- aggregate(water_qual$Turbidity, list(water_qual$Date), mean)
-water_qual_Turbid <- plyr::rename(water_qual_Turbid, c("Group.1"="Date", "x"="Turbidity"))
-water_qual_Turbid$Date <- format(as.yearmon(water_qual_Turbid$Date, "%m/%d/%Y"), "%m")
-water_qual_Turbid <- aggregate(water_qual_Turbid$Turbidity, list(water_qual_Turbid$Date), mean)
-water_qual_Turbid <- plyr::rename(water_qual_Turbid, c("Group.1"="Date", "x"="Turbidity"))
-water_qual_Turbid$Date <- mapvalues(water_qual_Turbid$Date, from = water_qual_Turbid$Date, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
+#water_qual_Turbid <- aggregate(water_qual$Turbidity, list(water_qual$Date), mean)
+#water_qual_Turbid <- plyr::rename(water_qual_Turbid, c("Group.1"="Date", "x"="Turbidity"))
+#water_qual_Turbid$Date <- format(as.yearmon(water_qual_Turbid$Date, "%m/%d/%Y"), "%m")
+#water_qual_Turbid <- aggregate(water_qual_Turbid$Turbidity, list(water_qual_Turbid$Date), mean)
+#water_qual_Turbid <- plyr::rename(water_qual_Turbid, c("Group.1"="Date", "x"="Turbidity"))
+#water_qual_Turbid$Date <- mapvalues(water_qual_Turbid$Date, from = water_qual_Turbid$Date, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
 
-water_qual_Chlorine <- aggregate(water_qual$Chlorine, list(water_qual$Date), mean)
-water_qual_Chlorine <- plyr::rename(water_qual_Chlorine, c("Group.1"="Date", "x"="Chlorine"))
-water_qual_Chlorine$Date <- format(as.yearmon(water_qual_Chlorine$Date, "%m/%d/%Y"), "%m")
-water_qual_Chlorine <- aggregate(water_qual_Chlorine$Chlorine, list(water_qual_Chlorine$Date), mean)
-water_qual_Chlorine <- plyr::rename(water_qual_Chlorine, c("Group.1"="Date", "x"="Chlorine"))
-water_qual_Chlorine$Date <- mapvalues(water_qual_Chlorine$Date, from = water_qual_Chlorine$Date, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
+#water_qual_Chlorine <- aggregate(water_qual$Chlorine, list(water_qual$Date), mean)
+#water_qual_Chlorine <- plyr::rename(water_qual_Chlorine, c("Group.1"="Date", "x"="Chlorine"))
+#water_qual_Chlorine$Date <- format(as.yearmon(water_qual_Chlorine$Date, "%m/%d/%Y"), "%m")
+#water_qual_Chlorine <- aggregate(water_qual_Chlorine$Chlorine, list(water_qual_Chlorine$Date), mean)
+#water_qual_Chlorine <- plyr::rename(water_qual_Chlorine, c("Group.1"="Date", "x"="Chlorine"))
+#water_qual_Chlorine$Date <- mapvalues(water_qual_Chlorine$Date, from = water_qual_Chlorine$Date, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
 
 
 drink_water <- filter(water, water$Complaint.Type == "Drinking Water")
@@ -62,10 +63,12 @@ rep_q_water$Date <- (format(as.yearmon(rep_q_water$Date, "%Y-%m-%d"), "%m"))
 rep_q_water_table <- as.data.frame(table(rep_q_water$Date, rep_q_water$Descriptor))
 rep_q_water_table <- plyr::rename(rep_q_water_table, c("Var1"="Date", "Var2"="Descriptor", "Freq"="Number"))
 
-# Total data table
-#rep_q_water_table_monthly <- aggregate(rep_q_water_table$Number, list(rep_q_water_table$Date), sum)
-#rep_q_water_table_monthly$Group.1 <- mapvalues(rep_q_water_table_monthly$Group.1, from = rep_q_water_table_monthly$Group.1, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
+final_shiny_1 <- readRDS("../data/final_shiny.rds")
 
+<<<<<<< Updated upstream
+=======
+shiny2_stacked_1 <- readRDS("../data/shiny2_stacked.rds")
+>>>>>>> Stashed changes
 
 source(file = "Global.R")
 
@@ -208,7 +211,11 @@ if (typeof heat === typeof undefined) {
 
 
 output$myChart <- renderChart({
+<<<<<<< Updated upstream
  
+=======
+  shiny2 = (shiny2_stacked_1)
+>>>>>>> Stashed changes
   p6 <- nPlot(Frequency ~ Borough, group = 'Type', data = shiny2, 
               type = input$type, dom = 'myChart', width = 800)
   p6$chart(color = c('green', 'brown'), stacked = input$stack)
@@ -221,11 +228,11 @@ output$myChart <- renderChart({
 output$duplicatePlot <- renderPlot({
   
   # Render a barplot
-  barplot(final_shiny[,input$burr],
+  barplot(final_shiny_1[,input$burr],
           main=input$borough,
           col = topo.colors(12),
           ylab="Number of Duplicate Complaints",
-          xlab="Year", ylim=c(0,max(final_shiny)))
+          xlab="Year", ylim=c(0,max(final_shiny_1)))
 })
 
 

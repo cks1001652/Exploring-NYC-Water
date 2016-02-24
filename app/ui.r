@@ -111,7 +111,11 @@ tabPanel("Duplicates",
                        sidebarPanel(
                          conditionalPanel(condition="input.cPanels==4",
                                           selectInput("burr", "Borough:", 
+<<<<<<< Updated upstream
                                                       choices=c("BRONX","BROOKLYN","MANHATTAN","QUEENS","STATEN ISLAND")),
+=======
+                                                      choices=c("Bronx","Brooklyn","Manhattan","Queens","Staten Island")),
+>>>>>>> Stashed changes
                                           hr(),
                                           helpText("Boroughs of NYC that had complaints filed through 311 Service Requests")
                          ),
