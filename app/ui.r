@@ -47,7 +47,7 @@ tabPanel("Overview",
                                               chartOutput("baseMap", "leaflet"),
                                               #leafletOutput("baseMap"),
                                               tags$style('.leaflet {width: 930px;height:580px}'),
-                                              tags$head(tags$script(src="http://leaflet.github.io/Leaflet.heat/dist/leaflet-heat.js")),
+                                              tags$head(tags$script(src="https://leaflet.github.io/Leaflet.heat/dist/leaflet-heat.js")),
                                               uiOutput('heatMap'),value=2)
                          )))),
 
