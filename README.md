@@ -4,9 +4,9 @@ Take a look at NYC's water system!
 Project Link: https://cks1001652.shinyapps.io/nycwater
 
 Members 
-- Josh
-- Schrinia
-- Yicheng 
+- Josh jmd2228
+- Schinria sri2116
+- Yicheng yw2761
 - Xiaoyu
 
 ![screenshot](app/www/white_water.jpg)
