@@ -101,12 +101,12 @@ shinyServer(function(input, output) {
     # min.freq = input$freq, max.words=input$max,
     df <- as.data.frame(table(quality_water$Descriptor))
     par(bg="#f5f5f5")
-    wordcloud_rep(df$Var1, df$Freq, min.freq = input$desc_range[1], max.words=input$desc_range[2], scale=c(3,1), random.order = TRUE, random.color=TRUE, rot.per=.3,
+    wordcloud_rep(df$Var1, df$Freq, min.freq = 1, max.words=input$desc_range[1], scale=c(3,1), random.order = TRUE, random.color=TRUE, rot.per=.3,
                   colors=brewer.pal(8, "Dark2"))
   })
   
   output$descrip_text = renderText({
-      paste("Viewing ", input$desc_range[1], " to ", max.words=input$desc_range[2], "descriptors")
+      paste("Viewing ", input$desc_range[1], " descriptors")
   })
 
   output$sample_text = renderText({
@@ -227,14 +227,22 @@ output$myChart <- renderChart({
   p6
 })
 
+output$barplot_text = renderText({
+  paste("Barplot of Heat/Hot Water Duplicates in ", input$burr)
+})
+
+output$barplot2_text = renderText({
+  paste("Duplicate v Non-Duplicate Heat/Hot Water Complaints Barplot")
+})
+
 output$duplicatePlot <- renderPlot({
   
   # Render a barplot
   barplot(final_shiny_1[,input$burr],
           main=input$borough,
-          col = topo.colors(12),
+          col = topo.colors(2),
           ylab="Number of Duplicate Complaints",
-          xlab="Year", ylim=c(0,max(final_shiny_1)))
+          xlab="2014 and 2015 Complaints", ylim=c(0,max(final_shiny_1)))
 })
 
 
