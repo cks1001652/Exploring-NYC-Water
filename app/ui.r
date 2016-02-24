@@ -111,7 +111,7 @@ tabPanel("Duplicates",
                        sidebarPanel(
                          conditionalPanel(condition="input.cPanels==4",
                                           selectInput("burr", "Borough:", 
-                                                      choices=colnames(final_shiny)),
+                                                      choices=c("BRONX","BROOKLYN","MANHATTAN","QUEENS","STATEN ISLAND")),
                                           hr(),
                                           helpText("Boroughs of NYC that had complaints filed through 311 Service Requests")
                          ),
@@ -136,7 +136,81 @@ tabPanel("Duplicates",
                          )
                        )
          )
-)
+),
 
 # End ui
+#################### xiaoyu s Menu Item ####################
+
+tabPanel("Resolution Time",
+         shinyUI(
+           fluidPage(
+             fluidRow(
+               column(3,
+                      h3("All about Time"),
+                      sidebarPanel(width = 12,
+                                   
+                                   conditionalPanel(condition = "input.condPanels == 1",
+                                                    selectInput("cases", "Case Status:", 
+                                                                choices = list( "Open" = 1, "Closed" = 2), selected = 1)),
+                                   
+                                   conditionalPanel(condition = "input.condPanels == 2 ",
+                                                    selectInput("time", "Timeline by Boroughs:", 
+                                                                choices = list("All Boroughs" = 1,
+                                                                               "BRONX " = 2,
+                                                                               "BROOKLYN" = 3,
+                                                                               "MANHATTAN" = 4,
+                                                                               "QUEENS" = 5,
+                                                                               "STATEN ISLAND" = 6),selected = 1),
+                                                    selectInput("compare", "Between-Boroughs Comparison:", 
+                                                                choices = list("NONE" = 1,
+                                                                               "BRONX " = 2, 
+                                                                               "BROOKLYN" = 3,
+                                                                               "MANHATTAN" = 4,
+                                                                               "QUEENS" = 5,
+                                                                               "STATEN ISLAND" = 6),selected = 1),
+                                                    
+                                                    selectInput("type_2", "Complaint.Type Timeline:", 
+                                                                choices = list("DrinkingWater" = 1,
+                                                                               "HEAT/HOT WATER" = 2, 
+                                                                               "Water System" = 3,
+                                                                               "Water Leak" = 4), selected = 1),
+                                                    
+                                                    selectInput("com", "Between-Boroughs Comparison:", 
+                                                                choices = list("NONE" = 0,
+                                                                               "DrinkingWater" = 1,
+                                                                               "HEAT/HOT WATER" = 2, 
+                                                                               "Water System" = 3,
+                                                                               "Water Leak" = 4), selected = 0)),
+                                   
+                                   conditionalPanel(condition = "input.condPanels == 3",
+                                                    selectInput("status", "Time Spent:", 
+                                                                choices = list("By Boroughs" = 1,
+                                                                               "By ComplaintType" = 2), selected = 1))
+                                   
+                                   
+                      )),
+               
+               column(9,mainPanel(width = 11,tabsetPanel(id = "condPanels",
+                                                         
+                                                         tabPanel("Summary",
+                                                                  fluidRow(column(6,plotlyOutput("case2", width="350px",height="350px")),
+                                                                           column(6,plotlyOutput("case3", width="350px",height="350px"))),value = 1),
+                                                         
+                                                         tabPanel("Timeline",
+                                                                  dygraphOutput("dygraph", width="800px",height="300px"),
+                                                                  dygraphOutput("dygraph2", width="800px",height="300px"), value = 2), 
+                                                         
+                                                         tabPanel("Time Spent",
+                                                                  plotlyOutput("plot", width="700px",height="400px"),
+                                                                  tableOutput("view"), value = 3)
+                                                         
+                                                         
+                                                         
+               )))))))
+
+#################### end of  xiaoyu s Menu Item ####################
+
+
+
+
 ))
