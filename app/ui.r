@@ -18,15 +18,15 @@ tabPanel("Main",
 
 
 ###############Start Richard's Menu Item################### 
-navbarMenu("Overview",
-           tabPanel("Basic Information",
+navbarMenu("Complaints",
+           tabPanel("Complaint Information",
                       sidebarLayout(position="right",
-                      sidebarPanel(width=4,helpText("We display the proportion of the Complaints type and Year it happened"),
-                                            selectInput("year","Choose a Year to display",
+                      sidebarPanel(width=4,helpText("Lets take a look at the proportions of various water-related complaints in NYC by borough."), hr(),
+                                            selectInput("year","Choose a year",
                                                         choices = list("2013"=1,"2014"=2,"2015"=3),
                                                         selected = 1),
-                                            selectInput("borough","Choose a Borough to display",
-                                                        choices = list("BRONX"=1,"BROOKLYN"=2,"MANHATTAN"=3,"QUEENS"=4,"STATEN ISLAND"=5),
+                                            selectInput("borough","Choose a borough",
+                                                        choices = list("Bronx"=1,"Brooklyn"=2,"Manhattan"=3,"Queens"=4,"Staten Island"=5),
                                                         selected = 1)
                       ),
                       mainPanel(width=8,tags$div(class="descrip_text", textOutput("pie_text")), br(),
@@ -35,10 +35,10 @@ navbarMenu("Overview",
                       
                     ))),
            
-           tabPanel("Density/Heat Map",
+           tabPanel("Heat Map",
                     #headerPanel("Density/Heat map"),
                     sidebarLayout(position="right",
-                    sidebarPanel(width=4,selectInput("mapyear","Choose a Year to display",
+                    sidebarPanel(width=4, helpText("This heat map shows the most areas with the most complaints"), hr(), selectInput("mapyear","Choose a year",
                                                      choices = list("2013"=1,"2014"=2,"2015"=3),
                                                      selected = 3)
                     ),
@@ -65,12 +65,12 @@ navbarMenu("Overview",
             helpText("Explore this wordcloud that shows the various descriptors used by NYC residents to describe their water"),
             br(),
             sliderInput("desc_range", 
-              label = "Range of Number of Descriptors",
-              min = 0, max = 13, value = c(0, 13))
+              label = "Number of Descriptors",
+              min = 1, max = 13, value = 13)
           ),
           conditionalPanel(condition="input.conditionedPanels==2",
             helpText("Try selecting different descriptions of water to see if it correlates with water sampled from NYC's upstate reservoirs"),
-            br(),
+            hr(),
             selectInput("complaint_desc", 
               label = "Choose a description",
               choices = list("All", "Chemical Taste", "Clear with Insects/Worms", "Clear w/ Particles", "Cloudy Water", "Metallic Taste/Odor", "Musty Taste/Odor", "Milky Water", "Oil in Water", "Sewer Taste/Odor", "Unknown Taste"),
@@ -78,7 +78,7 @@ navbarMenu("Overview",
           ),
           conditionalPanel(condition="input.conditionedPanels==3",
             helpText("Discover the locations where NYC residents claim the drinking water has made them sick"),
-            br(),
+            hr(),
             selectInput("ill_year", 
               label = "Choose a year",
               choices = list("All", "2015", "2014", "2013"))
@@ -109,18 +109,19 @@ tabPanel("Duplicates",
          sidebarLayout(position="right",
                        sidebarPanel(
                          conditionalPanel(condition="input.cPanels==4",
-                                          selectInput("burr", "Borough:", 
-                                                      choices=c("Bronx","Brooklyn","Manhattan","Queens","Staten Island")),
-                                          hr(),
-                                          helpText("Boroughs of NYC that had complaints filed through 311 Service Requests")
+                                          helpText("Check out what NYC boroughs had duplicate complaints filed"), hr(),
+                                          selectInput("burr", "Choose a borough:", 
+                                                      choices=c("Bronx","Brooklyn","Manhattan","Queens","Staten Island"))
+                                        
                          ),
                          conditionalPanel(condition="input.cPanels==5",
+                                          helpText("Now compare the ratio of duplicate to non-duplicate complaints"), hr(),
                                           selectInput(inputId = "type",
-                                                      label = "Choose Chart Type",
+                                                      label = "Choose a chart type",
                                                       choices = c("multiBarChart", "multiBarHorizontalChart"),
                                                       selected = "multiBarChart"),
                                           checkboxInput(inputId = "stack",
-                                                        label = strong("Stack Bars?"),
+                                                        label = strong("Want to stack the bars?"),
                                                         value = FALSE)
                          )   
                        ),
@@ -128,9 +129,9 @@ tabPanel("Duplicates",
                        mainPanel(
                          tabsetPanel(type="pill",
                                      #Panel 1 is a bar chart of cuplicates by year            
-                                     tabPanel("Heat/Hot Water Complaints By Year",br(), plotOutput("duplicatePlot"), value=4),
+                                     tabPanel("Complaints By Year", br(), tags$div(class="descrip_text", textOutput("barplot_text")), br(), plotOutput("duplicatePlot"), value=4),
                                      #Panel 2 is a stacked bar chart of duplicates vs. non-duplicates
-                                     tabPanel("Heat/Hot Water Requests Submitted by Borough", br(), showOutput("myChart", "nvd3"), value=5),
+                                     tabPanel("Complaints by Borough", br(), tags$div(class="descrip_text", textOutput("barplot2_text")), br(), showOutput("myChart", "nvd3"), value=5),
                                      id = "cPanels"
                          )
                        )
@@ -148,19 +149,19 @@ tabPanel("Resolution Time",
                       #h3("All about Time"),
                       sidebarPanel(width = 12,
                                    
-                                   conditionalPanel(condition = "input.condPanels == 1",
-                                                    selectInput("cases", "Case Status:", 
+                                   conditionalPanel(condition = "input.condPanels == 1", helpText("Compare the proportion of open to closed complaints in each borough"), hr(),
+                                                    selectInput("cases", "Case status:", 
                                                                 choices = list( "Open" = 1, "Closed" = 2), selected = 1)),
                                    
-                                   conditionalPanel(condition = "input.condPanels == 2 ",
-                                                    selectInput("time", "Timeline by Boroughs:", 
+                                   conditionalPanel(condition = "input.condPanels == 2 ", helpText("Try this timeline to see when complaints were closed. Add a secondary borough for a between comparison."), hr(),
+                                                    selectInput("time", "Timeline by Borough:", 
                                                                 choices = list("All Boroughs" = 1,
                                                                                "BRONX " = 2,
                                                                                "BROOKLYN" = 3,
                                                                                "MANHATTAN" = 4,
                                                                                "QUEENS" = 5,
                                                                                "STATEN ISLAND" = 6),selected = 1),
-                                                    selectInput("compare", "Between-Boroughs Comparison:", 
+                                                    selectInput("compare", "Between-Borough Comparison:", 
                                                                 choices = list("NONE" = 1,
                                                                                "BRONX " = 2, 
                                                                                "BROOKLYN" = 3,
@@ -168,21 +169,21 @@ tabPanel("Resolution Time",
                                                                                "QUEENS" = 5,
                                                                                "STATEN ISLAND" = 6),selected = 1),
                                                     
-                                                    selectInput("type_2", "Complaint.Type Timeline:", 
+                                                    selectInput("type_2", "Complaint Type Timeline:", 
                                                                 choices = list("DrinkingWater" = 1,
                                                                                "HEAT/HOT WATER" = 2, 
                                                                                "Water System" = 3,
                                                                                "Water Leak" = 4), selected = 1),
                                                     
-                                                    selectInput("com", "Between-Boroughs Comparison:", 
+                                                    selectInput("com", "Between-Complaints Comparison:", 
                                                                 choices = list("NONE" = 0,
                                                                                "DrinkingWater" = 1,
                                                                                "HEAT/HOT WATER" = 2, 
                                                                                "Water System" = 3,
                                                                                "Water Leak" = 4), selected = 0)),
                                    
-                                   conditionalPanel(condition = "input.condPanels == 3",
-                                                    selectInput("status", "Time Spent:", 
+                                   conditionalPanel(condition = "input.condPanels == 3", helpText("These boxplots show how long it took to resolve NYC complaints"), hr(),
+                                                    selectInput("status", "Length of Time:", 
                                                                 choices = list("By Boroughs" = 1,
                                                                                "By ComplaintType" = 2), selected = 1))
                                    
@@ -192,15 +193,15 @@ tabPanel("Resolution Time",
                column(9,mainPanel(width = 11,tabsetPanel(id = "condPanels",type="pill",
                                                          
                                                          tabPanel("Summary",
-                                                                  fluidRow(column(6,plotlyOutput("case2", width="350px",height="350px")),
-                                                                           column(6,plotlyOutput("case3", width="350px",height="350px"))),value = 1),
+                                                                  fluidRow(column(6,br(), plotlyOutput("case2", width="350px",height="350px")),
+                                                                           column(6,br(), plotlyOutput("case3", width="350px",height="350px"))),value = 1),
                                                          
                                                          tabPanel("Timeline",
                                                                   dygraphOutput("dygraph", width="800px",height="300px"),
                                                                   dygraphOutput("dygraph2", width="800px",height="300px"), value = 2), 
                                                          
                                                          tabPanel("Time Spent",
-                                                                  plotlyOutput("plot", width="700px",height="400px"),
+                                                                  br(), plotlyOutput("plot", width="700px",height="400px"), br(),
                                                                   tableOutput("view"), value = 3)
                                                          
                                                          
