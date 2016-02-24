@@ -8,6 +8,24 @@ library(zoo)
 library(leaflet)
 library(rCharts)
 
+library(ggplot2)
+require(lubridate)
+library(dygraphs)
+library(xts)
+
+#xiaoyu data
+A <- readRDS("../data/ONE.Rds")
+FIVE <- readRDS("../data/FIVE.Rds")
+THREE <- readRDS("../data/THREE.Rds")
+
+C <- data.frame(Borough = A$Borough[A$Status == "Closed"], 
+                Complaint.Type = A$Complaint.Type[A$Status == "Closed"],Days = A$Days[A$Status == "Closed"])
+
+## error 
+final_shiny <- readRDS("../data/final_shiny.rds")
+shiny2_stacked <- readRDS("../data/shiny2_stacked.rds")
+
+
 # Read in data
 water <- readRDS("../data/data_4.Rds")
 water$Created.Date <- NULL
@@ -48,9 +66,6 @@ rep_q_water_table <- plyr::rename(rep_q_water_table, c("Var1"="Date", "Var2"="De
 #rep_q_water_table_monthly <- aggregate(rep_q_water_table$Number, list(rep_q_water_table$Date), sum)
 #rep_q_water_table_monthly$Group.1 <- mapvalues(rep_q_water_table_monthly$Group.1, from = rep_q_water_table_monthly$Group.1, c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"))
 
-final_shiny <- readRDS("../data/final_shiny.rds")
-
-shiny2_stacked <- readRDS("../data/shiny2_stacked.rds")
 
 source(file = "Global.R")
 
@@ -128,7 +143,7 @@ shinyServer(function(input, output) {
     
     p<- plot_ly(water_qual_Turbid, x =Date, y =Turbidity, name = "Turbidity Level", colors=brewer.pal(3, "BrBG"), text=paste("Turbidity:", Turbidity, " (NTU)")) %>%
     add_trace(rep_q_water_table_monthly, x=rep_q_water_table_monthly$Group.1, y = rep_q_water_table_monthly$x, name = "NYC Resident Complaints", yaxis = "y2", text=paste("Num of complaints:", rep_q_water_table_monthly$x))
-    layout(p, xaxis = x_axis, yaxis=y_axis, yaxis2 = ay)
+    layout(p, xaxis = x_axis, yaxis=y_axis, yaxis2 = ay) %>% config(displayModeBar = F)
     
   })  
 #################### End of Josh's Output ####################
@@ -138,7 +153,7 @@ output$piechart <- renderPlotly({
 #   detach("package:plyr",unload=T)
   watertypedata0 <- calculation(dataclean(waternew,fulllist[as.numeric(input$borough)],fulltime[as.numeric(input$year)]))
   q <- plot_ly(type='pie', values=watertypedata0[,4], labels=watertypedata0[,1])%>%
-    layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', title='Complaint Types Proportion')
+    layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', title='Complaint Types Proportion') %>% config(displayModeBar = F)
   q
 #   library(plyr)
 })
@@ -190,15 +205,17 @@ if (typeof heat === typeof undefined) {
 
 #shiny2_stacked <- readRDS("../data/shiny2_stacked.rds")
 
+
+
 output$myChart <- renderChart({
-  shiny2 = as.data.frame(shiny2_stacked)
+ 
   p6 <- nPlot(Frequency ~ Borough, group = 'Type', data = shiny2, 
               type = input$type, dom = 'myChart', width = 800)
   p6$chart(color = c('green', 'brown'), stacked = input$stack)
   
   p6$yAxis(tickFormat = "#! function(d) {return d3.format(',.2f')(d)} !#")
   
-  return(p6)
+  p6
 })
 
 output$duplicatePlot <- renderPlot({
@@ -213,5 +230,146 @@ output$duplicatePlot <- renderPlot({
 
 
 ################## End Schinria's Output##############
+
+
+#################### XIAOYU's Output ####################  
+output$dygraph <- renderDygraph({
+  data <- switch(input$time, 
+                 "1" = FIVE[,1],
+                 "2" = FIVE[,2],
+                 "3" = FIVE[,3],
+                 "4" = FIVE[,4],
+                 "5" = FIVE[,5],
+                 "6" = FIVE[,6])
+  
+  data2 <- switch(input$compare, 
+                  "1" = NULL,
+                  "2" = FIVE[,2],
+                  "3" = FIVE[,3],
+                  "4" = FIVE[,4],
+                  "5" = FIVE[,5],
+                  "6" = FIVE[,6])
+  
+  data3 <- cbind(data,data2)
+  
+  name <- paste(names(data),"    ", names(data2))
+  dygraph(data3, main = name) %>% dyRangeSelector()
+  
+})
+
+output$dygraph2 <- renderDygraph({
+  
+  data_one <- switch(input$type_2, 
+                 "1" = THREE[,1],
+                 "2" = THREE[,2],
+                 "3" = THREE[,3],
+                 "4" = THREE[,4])
+  
+  data_two <- switch(input$com, 
+                  "0" = NULL,
+                  "1" = THREE[,1],
+                  "2" = THREE[,2],
+                  "3" = THREE[,3],
+                  "4" = THREE[,4])
+  
+  data_three <- cbind(data_one,data_two)
+  
+  name <- paste(names(data_one),"    ", names(data_two))
+  
+  dygraph(data_three, main = name) %>% dyRangeSelector() 
+  
+})
+
+output$plot <- renderPlotly({
+  
+  if (input$status == 1) {
+    
+    x <- list(
+      showticklabels = F
+    )
+    
+    y <- list(
+      range = c(-2,12)
+    )
+    
+    plot_ly(C, x = Borough, y = Days, color = Borough, type = "box", boxmean = T) %>% 
+      layout(paper_bgcolor = 'rgba(0,0,0,0)',plot_bgcolor = 'rgba(0,0,0,0)', xaxis = x, yaxis = y, title = "Resolution Time by Boroughs") %>% config(displayModeBar = F)
+    
+  }
+  
+  else {
+    
+    x <- list(
+      showticklabels = F
+    )
+    
+    z <- list(
+      range = c(-5,55)
+    )
+    
+    plot_ly(C, x = Complaint.Type, y = Days, color = Complaint.Type, type = "box", boxmean = T) %>% 
+      layout(paper_bgcolor = 'rgba(0,0,0,0)',plot_bgcolor = 'rgba(0,0,0,0)', xaxis = x, yaxis = z, title = "Resolution Time by Boroughs") %>% config(displayModeBar = F)
+  } 
+  
+})
+
+
+output$view <- renderTable({
+  
+  summary <- data.frame(tapply(
+    A$Days[A$Status == "Closed"], list(A$Complaint.Type[A$Status == "Closed"], 
+                                       A$Borough[A$Status == "Closed"]), mean, na.rm=TRUE))
+  summary
+  
+})
+
+
+output$case2 <- renderPlotly({  
+  
+  if(input$cases == 1) {
+    
+    Borough <- data.frame(summary(A$Borough[A$Status == "Open"]))
+    value <- c(Borough[,1])
+    name <- c(rownames(Borough))
+    plot_ly(values = value, labels = c(name),type="pie", showlegend = F) %>% 
+      layout(paper_bgcolor = 'rgba(0,0,0,0)',plot_bgcolor = 'rgba(0,0,0,0)',title = "Open cases by Borough") %>% config(displayModeBar = F)
+    
+  }
+  else {
+    
+    Borough <- data.frame(summary(A$Borough[A$Status == "Closed"]))
+    value <- c(Borough[,1])
+    name <- c(rownames(Borough))
+    plot_ly(values = value, labels = c(name),type="pie", showlegend = F) %>% 
+      layout(paper_bgcolor = 'rgba(0,0,0,0)',plot_bgcolor = 'rgba(0,0,0,0)', title = "Closed cases by Borough") %>% config(displayModeBar = F)
+    
+  } 
+  
+})
+
+output$case3 <- renderPlotly({  
+  
+  if(input$cases == 1) {
+    
+    Type <- data.frame(summary(A$Complaint.Type[A$Status == "Open"]))
+    value <- c(Type[,1])
+    name <- c(rownames(Type))
+    plot_ly(values = value, labels = c(name),type="pie", showlegend = F) %>% 
+      layout(paper_bgcolor = 'rgba(0,0,0,0)',plot_bgcolor = 'rgba(0,0,0,0)',title = "Open cases by Complaint.Type") %>% config(displayModeBar = F)
+    
+  }
+  else{
+    
+    Type <- data.frame(summary(A$Complaint.Type[A$Status == "Closed"]))
+    value <- c(Type[,1])
+    name <- c(rownames(Type))
+    plot_ly(values = value, labels = c(name),type="pie" ,showlegend = F) %>% 
+      layout(paper_bgcolor = 'rgba(0,0,0,0)',plot_bgcolor = 'rgba(0,0,0,0)',title = "Closed cases by Complaint.Type") %>% config(displayModeBar = F)
+    
+  } 
+  
+})
+
+#################### End of XIAOYU's Output ####################
 
 })
