@@ -8,14 +8,4 @@ Members
 - Yicheng 
 - Xiaoyu
 
-This repo has been organized as follows.
-```
-proj/
-├── lib/
-├── data/
-├── doc/
-├── app/
-└── output/
-```
 ![screenshot](app/www/white_water.jpg)
-g
