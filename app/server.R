@@ -1,16 +1,16 @@
 library(shiny)
 
-library(dplyr)
-library(data.table)
-library(wordcloud)
-library(plotly)
-library(leaflet)
-library(rCharts)
-
-library(ggplot2)
-require(lubridate)
-library(dygraphs)
-library(xts)
+# library(dplyr)
+# library(data.table)
+# library(wordcloud)
+# library(plotly)
+# library(leaflet)
+# library(rCharts)
+# 
+# library(ggplot2)
+# require(lubridate)
+# library(dygraphs)
+# library(xts)
 # 
 # 
 # #xiaoyu data

@@ -1,6 +1,17 @@
 library(plyr)
 library(dplyr)
 library(zoo)
+library(dplyr)
+library(data.table)
+library(wordcloud)
+library(plotly)
+library(leaflet)
+library(rCharts)
+
+library(ggplot2)
+require(lubridate)
+library(dygraphs)
+library(xts)
 
 # library(data.table)
 # library(ggplot2)
@@ -138,5 +149,5 @@ year <- c("2014","2015")
 bor5 <- data.frame(year,duplicates)
 
 
-shiny2_stacked_1 <- readRDS("data/shiny2_stacked.rds")
+shiny2_stacked_1 <- readRDS("data/shiny2_stacked.Rds")
 
