@@ -11,7 +11,8 @@ library(ggplot2)
 require(lubridate)
 library(dygraphs)
 library(xts)
-
+# 
+# 
 # #xiaoyu data
 # A <- readRDS("../data/ONE.Rds")
 # FIVE <- readRDS("../data/FIVE.Rds")
@@ -21,8 +22,8 @@ library(xts)
 #                 Complaint.Type = A$Complaint.Type[A$Status == "Closed"],Days = A$Days[A$Status == "Closed"])
 # 
 # ## error 
-# # final_shiny <- readRDS("../data/final_shiny.rds")
-# # shiny2_stacked <- readRDS("../data/shiny2_stacked.rds")
+# final_shiny <- readRDS("../data/final_shiny.rds")
+# shiny2_stacked <- readRDS("../data/shiny2_stacked.rds")
 # 
 # 
 # # Read in data
@@ -65,8 +66,8 @@ library(xts)
 # final_shiny_1 <- readRDS("../data/final_shiny.rds")
 # 
 # shiny2_stacked_1 <- readRDS("../data/shiny2_stacked.rds")
-
-source(file = "Global.R")
+# 
+# source(file = "Global.R")
 
 shinyServer(function(input, output) {
 
@@ -100,15 +101,12 @@ shinyServer(function(input, output) {
     # min.freq = input$freq, max.words=input$max,
     df <- as.data.frame(table(quality_water$Descriptor))
     par(bg="#f5f5f5")
-#     wordcloud_rep(df$Var1, df$Freq, min.freq = input$desc_range[1], max.words=input$desc_range[2], scale=c(3,1), random.order = TRUE, random.color=TRUE, rot.per=.3,
-#                   colors=brewer.pal(8, "Dark2"))
-    wordcloud_rep(df$Var1, df$Freq, min.freq = 1, max.words=input$desc_range, scale=c(3,0.5), random.order = TRUE, random.color=TRUE, rot.per=.3,
+    wordcloud_rep(df$Var1, df$Freq, min.freq = 1, max.words=input$desc_range[1], scale=c(3,1), random.order = TRUE, random.color=TRUE, rot.per=.3,
                   colors=brewer.pal(8, "Dark2"))
   })
   
   output$descrip_text = renderText({
-#       paste("Viewing Top ", max.words=input$desc_range[2], "descriptors")
-        paste("Viewing Top ", max.words=input$desc_range, "descriptors")
+      paste("Viewing ", input$desc_range[1], " descriptors")
   })
 
   output$sample_text = renderText({
@@ -229,14 +227,23 @@ output$myChart <- renderChart({
   p6
 })
 
+output$barplot_text = renderText({
+  paste("Barplot of Heat/Hot Water Duplicates in ", input$burr)
+})
+
+output$barplot2_text = renderText({
+  paste("Duplicate v Non-Duplicate Heat/Hot Water Complaints Barplot")
+})
+
 output$duplicatePlot <- renderPlot({
   
-  # Render a barplot
-#   barplot(final_shiny_1[,"Bronx"],
-#           main="Bronx",
-#           col = topo.colors(12),
+#   # Render a barplot
+#   barplot(final_shiny_1[,input$burr],
+#           main=input$borough,
+#           col = topo.colors(2),
 #           ylab="Number of Duplicate Complaints",
-#           xlab="Year", ylim=c(0,max(final_shiny_1)))
+#           xlab="2014 and 2015 Complaints", ylim=c(0,max(final_shiny_1)))
+  
   if(input$burr=="Bronx"){
     final_shiny_2 <- bor1
   }
@@ -255,21 +262,18 @@ output$duplicatePlot <- renderPlot({
   c <- ggplot(final_shiny_2,aes(x=year,y=duplicates))+
     geom_bar(stat="identity",colour=c(topo.colors(2)[1],topo.colors(2)[2]),fill=c(topo.colors(2)[1],topo.colors(2)[2]))+
     theme(
-          panel.background = element_rect(fill = "transparent",colour = NA), # or theme_blank()
-          panel.grid.major = element_blank(),
-          panel.grid.major = element_blank(),
-          plot.background = element_rect(fill = "transparent",colour = NA))+
+      panel.background = element_rect(fill = "transparent",colour = NA), # or theme_blank()
+      panel.grid.major = element_blank(),
+      panel.grid.major = element_blank(),
+      plot.background = element_rect(fill = "transparent",colour = NA))+
     xlab("Year")+
     ylab("Number of Duplicate Complaints")+
     scale_y_continuous(limits = c(0, max(final_shiny_1)))+
     ggtitle(paste("Borough",input$burr))
   
   c
-}, bg="transparent")
+},bg="transparent")
 
-diamonds
-meanprice <- tapply(diamonds$price, diamonds$cut, mean)
-cut <- factor(levels(diamonds$cut), levels = levels(diamonds$cut))
 
 ################## End Schinria's Output##############
 
