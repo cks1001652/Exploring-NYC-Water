@@ -1,21 +1,11 @@
-# Project 2 Open Data NYC
+# Exploring NYC's Water
 
-In this second project of W4249 Applied Data Science, we will carry out *Exploratory Data Analysis and Visualization* via a shiny app on a topic about open data released from the [New York City open data portal](https://nycopendata.socrata.com/). See [Project 2 Description](project2_desc.md) for more details.  
+Take a look at NYC's water system!  
 
-The learning goals for this project is 
-- exploratory data analysis
-- visualization
-- shiny app
-- app production work flow
+Members 
+- Josh
+- Schrinia
+- Yicheng 
+- Xiaoyu
 
-This repo has been organized as follows.
-```
-proj/
-├── lib/
-├── data/
-├── doc/
-├── app/
-└── output/
-```
-![screenshot](doc/screenshot2.png)
-g
+![screenshot](app/www/white_water.jpg)
