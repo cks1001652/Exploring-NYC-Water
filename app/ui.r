@@ -189,15 +189,15 @@ tabPanel("Resolution Time",
                        
                        mainPanel(tabsetPanel(id = "condPanels",type="pill",
                                              
-                                             tabPanel("Summary",
+                                             tabPanel("Summary",br(),
                                                       fluidRow(column(6,plotlyOutput("case2", width="350px",height="350px")),
                                                                column(6,plotlyOutput("case3", width="350px",height="350px"))),value = 1),
                                              
-                                             tabPanel("Timeline",
+                                             tabPanel("Timeline",br(),
                                                       dygraphOutput("dygraph", width="800px",height="300px"),
                                                       dygraphOutput("dygraph2", width="800px",height="300px"), value = 2), 
                                              
-                                             tabPanel("Time Spent",
+                                             tabPanel("Time Spent",br(),
                                                       plotlyOutput("plot", width="700px",height="400px"),
                                                       tableOutput("view"), value = 3)
                                              
