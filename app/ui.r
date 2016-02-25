@@ -42,7 +42,7 @@ tabPanel("Overview",
                                                                                 textOutput("pie_text")), br(),
                                               plotlyOutput('piechart',height="600px" ),value=1),
                                      
-                                     tabPanel("Basic Information",br(),tags$div(class="descrip_text",
+                                     tabPanel("Heat Map",br(),tags$div(class="descrip_text",
                                                                                 textOutput("heat_text")), br(),
                                               chartOutput("baseMap", "leaflet"),
                                               #leafletOutput("baseMap"),
