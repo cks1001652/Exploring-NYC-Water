@@ -7,6 +7,6 @@ Members
 - Josh jmd2228
 - Schinria sri2116
 - Yicheng yw2761
-- Xiaoyu
+- Xiaoyu xw2419
 
 ![screenshot](app/www/white_water.jpg)
